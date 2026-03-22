@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "884589188113",
+    "project_id": "design-lab-16b52",
+    "storage_bucket": "design-lab-16b52.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:884589188113:android:6e2ac82a9b2561dc71cdb0",
+        "android_client_info": {
+          "package_name": "com.anonymous.designlab"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBC28DlrvZ3ekkivdJ0bhebJkw1Tjyj0mU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

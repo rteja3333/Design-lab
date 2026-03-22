@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "CrowdSpot",
+    "slug": "crowdspot",
+    "version": "1.0.0",
+    "scheme": "crowdspot",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#6366f1"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.crowdspot.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#6366f1"
+      },
+      "package": "com.anonymous.designlab",
+      "googleServicesFile": "./google-services.json"
+    },
+    "web": {},
+    "plugins": [
+      "expo-camera",
+      "expo-av",
+      "expo-location"
+    ],
+    "permissions": [
+      "CAMERA",
+      "RECORD_AUDIO",
+      "ACCESS_FINE_LOCATION",
+      "ACCESS_COARSE_LOCATION"
+    ]
+  }
+}

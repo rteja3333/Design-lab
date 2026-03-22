@@ -1,0 +1,41 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // User profile documents: users can only read/write their own profile
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Reports: authenticated users can create; read own reports (or all reports if needed)
+    match /reports/{reportId} {
+      allow create: if request.auth != null
+                    && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.title is string
+                    && request.resource.data.description is string;
+
+      allow read: if request.auth != null;
+
+      allow update, delete: if request.auth != null
+                            && resource.data.userId == request.auth.uid;
+    }
+
+    // Requests: app currently uses same client for admin/user flows
+    match /requests/{requestId} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null;
+      allow delete: if false;
+    }
+
+    // Categories: read-only from client
+    match /categories/{categoryId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // Notifications: currently disabled in app, keep locked
+    match /notifications/{notificationId} {
+      allow read, write: if false;
+    }
+  }
+}
