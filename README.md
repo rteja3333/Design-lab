@@ -218,6 +218,165 @@ src/
 - Context API for global state (if needed)
 - Firebase real-time listeners for data sync
 
+# Guided Image Capture
+
+An Expo-based React Native app for guided, task-driven image capture. The app walks a user through a structured capture flow, uses live telemetry to assist navigation and alignment, captures an image, and prepares a capture result for downstream processing.
+
+## Overview
+
+This project is built around a lightweight capture engine with explicit state transitions:
+
+- `START`
+- `NAVIGATE`
+- `ALIGN`
+- `CAPTURE`
+- `VALIDATE`
+- `RETAKE`
+- `SUBMIT`
+- `DONE`
+
+The current implementation already supports:
+
+- camera capture via `expo-camera`
+- GPS, device motion, and compass telemetry collection
+- navigation validation against a target capture location
+- alignment validation against a required facing direction
+- on-screen HUD/instruction orchestration
+- local test-task driven development flow
+
+The module is designed so that capture outputs can later be routed into custom backend, review, or image-processing pipelines.
+
+## Current Flow
+
+1. The app loads a capture task.
+2. The user is guided to the expected location.
+3. The app checks device heading against the requested orientation.
+4. The user captures an image.
+5. The app runs validation logic.
+6. The app either requests a retake or completes submission.
+7. A final capture result object is built and returned for downstream handling.
+
+At the moment, location and orientation checks are implemented, while image-quality and post-processing stages are still placeholders.
+
+## Tech Stack
+
+- Expo
+- React Native
+- Expo Router
+- TypeScript
+- Zustand
+- Expo Camera
+- Expo Location
+- Expo Sensors
+
+## Project Structure
+
+Key areas of the codebase:
+
+- `app/`
+   - route entry points
+   - `index.tsx` starts the capture flow
+   - `capture.tsx` loads the task and mounts the guided camera screen
+- `components/GuidedImageCapture/`
+   - main feature module
+- `components/GuidedImageCapture/engine/`
+   - state machine, validation, telemetry math, and capture helpers
+- `components/GuidedImageCapture/hooks/`
+   - live telemetry subscriptions
+- `components/GuidedImageCapture/hud/`
+   - instructions, controls, scanner, and developer overlay
+- `components/GuidedImageCapture/stores/`
+   - Zustand stores for engine, capture, and telemetry state
+- `components/GuidedImageCapture/types/`
+   - task schema, feature config, and shared types
+
+## Setup
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the Expo development server:
+
+```bash
+npm start
+```
+
+You can also run platform-specific commands:
+
+```bash
+npm run android
+npm run ios
+npm run web
+```
+
+Lint the project:
+
+```bash
+npm run lint
+```
+
+## Task-Driven Development
+
+The capture screen currently supports a local test task loaded from:
+
+- `components/GuidedImageCapture/types/task.json`
+
+This task defines:
+
+- capture location coordinates and allowed radius
+- expected facing direction and orientation
+- subject details and contextual hints
+- capture requirements such as shot id and label
+- quality thresholds such as resolution, blur, brightness, tilt, and file size
+
+## Configuration
+
+Feature behavior is controlled in:
+
+- `components/GuidedImageCapture/types/config.ts`
+
+Important configuration includes:
+
+- `DEV_MODE` to show the developer overlay
+- `TEST_MODE` to run with a local task or bypass parts of validation
+- telemetry polling intervals
+- GPS tolerance values
+- compass tolerance values
+
+## Permissions and Sensors
+
+The app relies on runtime access to:
+
+- camera
+- foreground location
+- device motion sensors
+- magnetometer / compass
+
+Without these, guided capture cannot function correctly.
+
+## Pending Work
+
+- add real-time guidance on the capture screen before and during image capture
+
+## Development Notes
+
+- `app/capture.tsx` currently uses the local test task unless test mode is turned off.
+- The completion path logs and returns a `CaptureResult`, which is the integration point for later pipeline work.
+
+## Future Enhancements
+
+Potential next steps beyond the pending items above:
+
+- load remote tasks instead of relying on bundled test JSON
+- add richer image-quality metrics such as blur, framing, glare, and brightness analysis
+- support multi-shot capture requirements
+- persist capture sessions and audit data
+- connect submission to an API or storage backend
+
+
 ## 🚀 Future Enhancements
 
 ### Phase 2 Features
