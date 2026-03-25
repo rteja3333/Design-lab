@@ -1,0 +1,52 @@
+{
+    "task_id": "TK-TEST-LOCAL-002",
+    "report_id": "RPT-HOME-001",
+    "issued_at": "2026-03-18T14:00:00Z",
+    "expires_at": "2026-03-25T23:59:59Z",
+    "capture_location": {
+        "lat": 12.8984,
+        "lng": 77.6769,
+        "radius_meters": 5,
+        "landmark_hint": "Sri Vishnu Brindavana"
+    },
+    "capture_orientation": {
+        "orientation": "portrait",
+        "facing_direction": "E",
+        "distance_from_subject_meters": {
+            "min": 1,
+            "max": 3
+        },
+        "subject_hint": "Frontal view of Room door"
+    },
+    "subject": {
+        "object_of_interest": "apartment entrance door",
+        "fault_description": "General condition and door number visibility",
+        "focus_region": "centre",
+        "secondary_context": [
+            "door frame",
+            "door handle",
+            "entryway floor"
+        ],
+        "background_context": [
+            "interior hallway"
+        ]
+    },
+    "capture_requirements": [
+        {
+            "shot_id": "SHOT-01",
+            "label": "Frontal view of Room door",
+            "media_type": "photo",
+            "priority": 1
+        }
+    ],
+    "quality_thresholds": {
+        "min_resolution": "480p",
+        "max_blur_score": 0.20,
+        "min_brightness": 60,
+        "max_tilt_degrees": 60,
+        "file_size_mb": {
+            "min": 0,
+            "max": 25
+        }
+    }
+}

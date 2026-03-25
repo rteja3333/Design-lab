@@ -1,0 +1,150 @@
+// GuidedCameraScreen.tsx
+// Receives task.json prop, mounts useEngine, and composes CameraView + HUD.
+// No logic, orchestration only.
+// No direct state or store access.
+//
+// Exports: React.FC<{ task: TaskJson }>
+//
+// Depends on: ../types/types, engine/useEngine, hud/HUD
+
+import { StatusBar, StyleSheet, Text, View } from 'react-native'
+
+import { CameraView, useCameraPermissions } from 'expo-camera'
+import { Image } from 'expo-image'
+import { useRouter } from 'expo-router'
+import { useEffect, useRef } from 'react'
+import { useEngine } from './engine/useEngine'
+import { registerCaptureFrame } from './engine/useEngineUtils'
+import { useTelemetry } from './hooks/useTelemetry'
+import { HUD } from './hud/HUD'
+import { useCaptureStore } from './stores/useCaptureStore'
+import { useEngineStore } from './stores/useEngineStore'
+import type { TaskJson } from './types/types'
+
+interface GuidedCameraScreenProps {
+	task: TaskJson
+}
+
+const GuidedCameraScreen: React.FC<GuidedCameraScreenProps> = ({ task }) => {
+	const router = useRouter()
+	const cameraRef = useRef<CameraView | null>(null)
+	const [permission, requestPermission] = useCameraPermissions()
+	const isPreviewFrozen = useCaptureStore((state) => state.isPreviewFrozen)
+	const frozenImageUri = useCaptureStore((state) => state.imageUri)
+	const currentState = useEngineStore((state) => state.currentState)
+
+	// Initialize task in store on mount
+	useEffect(() => {
+		useCaptureStore.getState().setTask(task)
+	}, [task])
+
+	// Request camera permission on mount if not yet determined
+	useEffect(() => {
+		if (permission && !permission.granted && permission.canAskAgain) {
+			requestPermission()
+		}
+	}, [permission, requestPermission])
+
+	// Start sensor and location subscriptions
+	useTelemetry()
+
+	// Mount engine and get handlers
+	const { onButtonPress } = useEngine()
+
+	useEffect(() => {
+		return registerCaptureFrame(async () => {
+			if (!cameraRef.current) {
+				return null
+			}
+
+			const photo = await cameraRef.current.takePictureAsync({
+				quality: 0.85,
+				skipProcessing: true,
+			})
+
+			return photo?.uri ?? null
+		})
+	}, [])
+
+	useEffect(() => {
+		if (currentState === 'DONE') {
+			// ─── PLUGGABLE: Capture result ready for downstream processing ───
+			// The CaptureResult object is logged here and passed via navigation.
+			// Systems accessing this screen can intercept and route
+			// the result to their own processing pipelines, analytics, or screens.
+			const result = useCaptureStore.getState().buildResult()
+			if (result) {
+
+				// TO-DO: OUTPUT POINT
+				// Use this to how you want to handle capture result.
+				// Right now, just console logging the output
+				console.log('[GuidedImageCapture:DONE]', result)
+				router.replace({
+					pathname: '/',
+					params: { captureResult: JSON.stringify(result) },
+				})
+			} else {
+				router.replace('/')
+			}
+		}
+	}, [currentState, router])
+
+	useEffect(() => {
+		return () => {
+			useEngineStore.getState().reset()
+			useCaptureStore.getState().reset()
+		}
+	}, [])
+
+	if (!permission?.granted) {
+		return (
+			<View style={styles.permissionContainer}>
+				<Text style={styles.permissionText}>Camera access is required to use this feature.</Text>
+			</View>
+		)
+	}
+
+	return (
+		<>
+			<StatusBar hidden />
+			<View style={styles.container}>
+				<CameraView ref={cameraRef} style={styles.cameraView} facing="back" active={!isPreviewFrozen} />
+
+				{isPreviewFrozen && frozenImageUri ? (
+					<Image source={{ uri: frozenImageUri }} style={styles.frozenFrame} contentFit="cover" />
+				) : null}
+
+				{/* HUD overlay with instructions, controls, and dev overlay */}
+				<HUD />
+			</View>
+		</>
+	)
+}
+
+const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+		backgroundColor: '#000000',
+	},
+	cameraView: {
+		flex: 1,
+	},
+	frozenFrame: {
+		...StyleSheet.absoluteFillObject,
+	},
+	permissionContainer: {
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'center',
+		backgroundColor: '#000000',
+		padding: 24,
+	},
+	permissionText: {
+		color: '#ffffff',
+		fontSize: 16,
+		textAlign: 'center',
+	},
+})
+
+export { GuidedCameraScreen }
+

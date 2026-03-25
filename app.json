@@ -5,7 +5,8 @@
     "version": "1.0.0",
     "scheme": "crowdspot",
     "orientation": "portrait",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
     "splash": {
       "backgroundColor": "#6366f1"
     },
@@ -14,26 +15,43 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.crowdspot.app"
+      "bundleIdentifier": "com.crowdspot.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Allow CrowdSpot to access your camera to capture guided images.",
+        "NSLocationWhenInUseUsageDescription": "Allow CrowdSpot to access your location to guide you to the capture point."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#6366f1"
       },
       "package": "com.anonymous.designlab",
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "permissions": [
+        "CAMERA",
+        "RECORD_AUDIO",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ]
     },
-    "web": {},
     "plugins": [
-      "expo-camera",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow CrowdSpot to access your camera to capture guided images."
+        }
+      ],
       "expo-av",
-      "expo-location"
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Allow CrowdSpot to access your location to guide you to the capture point."
+        }
+      ],
+      "expo-font"
     ],
-    "permissions": [
-      "CAMERA",
-      "RECORD_AUDIO",
-      "ACCESS_FINE_LOCATION",
-      "ACCESS_COARSE_LOCATION"
-    ]
+    "experiments": {
+      "reactCompiler": true
+    }
   }
 }
