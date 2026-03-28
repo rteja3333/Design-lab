@@ -11,7 +11,6 @@ import {
 import MapView, { Marker, PROVIDER_GOOGLE, PROVIDER_DEFAULT } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Constants from 'expo-constants';
 
 import ReportCard from '../../components/ReportCard';
 import RequestCard from '../../components/RequestCard';
@@ -26,33 +25,7 @@ const INITIAL_REGION = {
   longitudeDelta: 0.03,
 };
 
-// Check if a real Google Maps API key is configured
-const getGoogleMapsKey = () => {
-  const key =
-    Constants.expoConfig?.android?.config?.googleMaps?.apiKey ||
-    Constants.expoConfig?.ios?.config?.googleMapsApiKey ||
-    '';
-  if (!key || key === 'your_google_maps_api_key_here') return null;
-  return key;
-};
-
 export default function MapViewScreen({ navigation }) {
-  const mapsApiKey = getGoogleMapsKey();
-
-  // If no valid API key, show placeholder
-  if (!mapsApiKey) {
-    return (
-      <SafeAreaView style={styles.placeholderContainer}>
-        <View style={styles.placeholderIcon}>
-          <Ionicons name="map-outline" size={40} color={COLORS.textLight} />
-        </View>
-        <Text style={styles.placeholderTitle}>Maps unavailable</Text>
-        <Text style={styles.placeholderText}>
-          Maps feature is not accessible yet.{'\n'}Please configure a valid Google Maps API key.
-        </Text>
-      </SafeAreaView>
-    );
-  }
 
   const mapRef = useRef(null);
   const [region, setRegion] = useState(INITIAL_REGION);
