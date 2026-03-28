@@ -88,30 +88,30 @@ export default function LoginScreen({ navigation }) {
         style={styles.keyboardView}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          {/* Header */}
+          {/* Header — airy, nature-inspired */}
           <View style={styles.header}>
             <View style={styles.iconContainer}>
-              <Ionicons name="location" size={40} color={COLORS.primary} />
+              <Ionicons name="leaf" size={32} color={COLORS.primary} />
             </View>
             <Text style={styles.kicker}>Community Reporting</Text>
             <Text style={styles.title}>CrowdSpot</Text>
             <Text style={styles.subtitle}>
-              Join the community and help improve your neighborhood
+              Report local issues. Help your neighborhood thrive.
             </Text>
           </View>
 
-          {/* Form */}
+          {/* Form — borderless card on surface bg */}
           <View style={styles.form}>
-            <Text style={styles.formTitle}>Sign up / Log in</Text>
+            <Text style={styles.formTitle}>Welcome</Text>
             <Text style={styles.formSubtitle}>
-              Enter your phone number to continue with OTP
+              Enter your phone number to get started
             </Text>
 
             <View style={styles.inputContainer}>
-              <Ionicons name="call-outline" size={20} color={COLORS.gray400} />
               <TextInput
                 style={styles.input}
-                placeholder="Enter phone number (e.g., +1234567890)"
+                placeholder="+1 234 567 890"
+                placeholderTextColor={COLORS.textLight}
                 value={phoneNumber}
                 onChangeText={setPhoneNumber}
                 keyboardType="phone-pad"
@@ -133,28 +133,22 @@ export default function LoginScreen({ navigation }) {
             </TouchableOpacity>
 
             <Text style={styles.helperText}>
-              We'll send you a verification code to confirm your number
+              We'll send a one-time verification code
             </Text>
           </View>
 
-          {/* Features */}
+          {/* Features — clean list, no card wrapping */}
           <View style={styles.features}>
-            <Text style={styles.featuresTitle}>What you can do:</Text>
-            
-            <View style={styles.feature}>
-              <Ionicons name="camera-outline" size={24} color={COLORS.primary} />
-              <Text style={styles.featureText}>Report issues in your area</Text>
-            </View>
-            
-            <View style={styles.feature}>
-              <Ionicons name="notifications-outline" size={24} color={COLORS.secondary} />
-              <Text style={styles.featureText}>Get requests from authorities</Text>
-            </View>
-            
-            <View style={styles.feature}>
-              <Ionicons name="people-outline" size={24} color={COLORS.success} />
-              <Text style={styles.featureText}>Help improve your community</Text>
-            </View>
+            {[
+              { icon: 'camera-outline', text: 'Report issues with photos & video', color: COLORS.primary },
+              { icon: 'notifications-outline', text: 'Respond to community requests', color: COLORS.secondary },
+              { icon: 'people-outline', text: 'Build a better neighborhood', color: COLORS.secondaryDark },
+            ].map((item, i) => (
+              <View key={i} style={styles.feature}>
+                <Ionicons name={item.icon} size={20} color={item.color} />
+                <Text style={styles.featureText}>{item.text}</Text>
+              </View>
+            ))}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -172,120 +166,110 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    padding: SPACING.lg,
+    paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.xxl,
+    paddingBottom: SPACING.xl,
     justifyContent: 'space-between',
   },
   header: {
     alignItems: 'center',
-    marginTop: SPACING.lg,
     marginBottom: SPACING.xl,
   },
   iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: COLORS.primaryLight + '20',
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: COLORS.primaryMuted,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: SPACING.lg,
+    marginBottom: SPACING.md,
   },
   kicker: {
-    fontSize: FONT_SIZES.sm,
-    fontWeight: '700',
-    letterSpacing: 0.6,
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '600',
+    letterSpacing: 1.5,
     textTransform: 'uppercase',
-    color: COLORS.secondaryDark,
+    color: COLORS.textLight,
     marginBottom: SPACING.sm,
   },
   title: {
-    fontSize: FONT_SIZES.header + 2,
-    fontWeight: '800',
-    color: COLORS.primary,
+    fontSize: FONT_SIZES.header,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
     marginBottom: SPACING.sm,
+    letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: FONT_SIZES.base,
     color: COLORS.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
-    maxWidth: 320,
+    maxWidth: 280,
   },
   form: {
-    backgroundColor: COLORS.white,
-    padding: SPACING.xl,
-    borderRadius: RADIUS.lg,
-    ...SHADOWS.md,
+    backgroundColor: COLORS.card,
+    paddingVertical: SPACING.xl,
+    paddingHorizontal: SPACING.lg,
+    borderRadius: RADIUS.xl,
     marginBottom: SPACING.xl,
+    ...SHADOWS.md,
   },
   formTitle: {
-    fontSize: FONT_SIZES.xl,
-    fontWeight: '800',
+    fontSize: FONT_SIZES.xxl,
+    fontWeight: '700',
     color: COLORS.textPrimary,
     marginBottom: SPACING.xs,
+    letterSpacing: -0.3,
   },
   formSubtitle: {
     fontSize: FONT_SIZES.sm,
     color: COLORS.textSecondary,
-    marginBottom: SPACING.lg + 2,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: RADIUS.md,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.md - 2,
     marginBottom: SPACING.lg,
   },
+  inputContainer: {
+    backgroundColor: COLORS.surface,
+    borderRadius: RADIUS.lg,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.md,
+    marginBottom: SPACING.md,
+  },
   input: {
-    flex: 1,
-    fontSize: FONT_SIZES.base,
-    marginLeft: SPACING.sm,
+    fontSize: FONT_SIZES.lg,
     color: COLORS.textPrimary,
+    letterSpacing: 0.5,
   },
   button: {
     backgroundColor: COLORS.primary,
     paddingVertical: SPACING.md + 2,
-    borderRadius: RADIUS.md,
+    borderRadius: RADIUS.full,
     alignItems: 'center',
     marginBottom: SPACING.md,
-    ...SHADOWS.sm,
   },
   buttonDisabled: {
-    backgroundColor: COLORS.gray400,
+    backgroundColor: COLORS.gray300,
   },
   buttonText: {
     color: COLORS.white,
     fontSize: FONT_SIZES.base,
-    fontWeight: '700',
+    fontWeight: '600',
   },
   helperText: {
     fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
+    color: COLORS.textLight,
     textAlign: 'center',
-    lineHeight: 18,
   },
   features: {
-    marginBottom: SPACING.sm,
-  },
-  featuresTitle: {
-    fontSize: FONT_SIZES.lg,
-    fontWeight: '600',
-    color: COLORS.textPrimary,
-    marginBottom: SPACING.lg,
-    textAlign: 'center',
+    gap: SPACING.md,
+    paddingHorizontal: SPACING.sm,
   },
   feature: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: SPACING.md,
-    paddingHorizontal: SPACING.sm,
+    gap: SPACING.md,
   },
   featureText: {
-    fontSize: FONT_SIZES.base,
+    fontSize: FONT_SIZES.sm,
     color: COLORS.textSecondary,
-    marginLeft: SPACING.md,
     flex: 1,
   },
 });

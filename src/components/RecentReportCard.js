@@ -70,14 +70,10 @@ export default function RecentReportCard({ report, onPress }) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: COLORS.white,
-    borderRadius: RADIUS.lg,
+    backgroundColor: COLORS.card,
+    borderRadius: RADIUS.xl,
     marginBottom: SPACING.md,
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    ...SHADOWS.sm,
   },
   content: {
     flexDirection: 'row',
@@ -87,15 +83,15 @@ const styles = StyleSheet.create({
     marginRight: SPACING.md,
   },
   image: {
-    width: 60,
-    height: 60,
+    width: 56,
+    height: 56,
     borderRadius: RADIUS.md,
   },
   placeholderImage: {
-    width: 60,
-    height: 60,
+    width: 56,
+    height: 56,
     borderRadius: RADIUS.md,
-    backgroundColor: COLORS.gray100,
+    backgroundColor: COLORS.surface,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -109,26 +105,26 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.xs,
   },
   title: {
-    fontSize: FONT_SIZES.base,
-    fontWeight: 'bold',
+    fontSize: FONT_SIZES.sm,
+    fontWeight: '600',
     color: COLORS.textPrimary,
     flex: 1,
     marginRight: SPACING.sm,
   },
   statusBadge: {
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: 2,
-    borderRadius: RADIUS.sm,
+    paddingHorizontal: SPACING.sm + 2,
+    paddingVertical: 3,
+    borderRadius: RADIUS.full,
   },
   statusText: {
     fontSize: FONT_SIZES.xs,
     fontWeight: '600',
-    textTransform: 'uppercase',
+    textTransform: 'capitalize',
   },
   description: {
-    fontSize: FONT_SIZES.sm,
+    fontSize: FONT_SIZES.xs,
     color: COLORS.textSecondary,
-    lineHeight: 20,
+    lineHeight: 18,
     marginBottom: SPACING.sm,
   },
   footer: {
@@ -137,10 +133,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   categoryTag: {
-    backgroundColor: COLORS.primary + '10',
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: 2,
-    borderRadius: RADIUS.sm,
+    backgroundColor: COLORS.primaryMuted,
+    paddingHorizontal: SPACING.sm + 2,
+    paddingVertical: 3,
+    borderRadius: RADIUS.full,
   },
   categoryText: {
     fontSize: FONT_SIZES.xs,

@@ -10,16 +10,17 @@ export default function CategoryCard({ category, onPress, compact = false }) {
     <TouchableOpacity 
       style={[styles.container, compact && styles.compactContainer]} 
       onPress={() => onPress(category)}
+      activeOpacity={0.7}
     >
-      <View style={[styles.iconContainer, { backgroundColor: category.color + '15' }]}>
+      <View style={[styles.iconContainer, { backgroundColor: category.color + '12' }]}>
         <Ionicons 
           name={category.icon} 
-          size={compact ? 20 : 28} 
+          size={compact ? 18 : 24} 
           color={category.color} 
         />
       </View>
       
-      <Text style={[styles.title, compact && styles.compactTitle]} numberOfLines={2}>
+      <Text style={[styles.title, compact && styles.compactTitle]} numberOfLines={1}>
         {category.name}
       </Text>
       
@@ -34,41 +35,40 @@ export default function CategoryCard({ category, onPress, compact = false }) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.card,
     padding: SPACING.lg,
-    borderRadius: RADIUS.lg,
+    borderRadius: RADIUS.xl,
     alignItems: 'center',
-    minWidth: 120,
+    minWidth: 110,
+    marginRight: SPACING.sm,
     ...SHADOWS.sm,
-    marginRight: SPACING.md,
   },
   compactContainer: {
     padding: SPACING.md,
-    minWidth: 90,
+    minWidth: 88,
+    borderRadius: RADIUS.lg,
   },
   iconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 48,
+    height: 48,
+    borderRadius: RADIUS.lg,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: SPACING.md,
+    marginBottom: SPACING.sm,
   },
   title: {
-    fontSize: FONT_SIZES.base,
+    fontSize: FONT_SIZES.sm,
     fontWeight: '600',
     color: COLORS.textPrimary,
     textAlign: 'center',
-    marginBottom: SPACING.xs,
-    lineHeight: 18,
   },
   compactTitle: {
-    fontSize: FONT_SIZES.sm,
-    marginBottom: 0,
-    marginTop: SPACING.sm,
+    fontSize: FONT_SIZES.xs,
+    marginTop: SPACING.xs,
   },
   tagCount: {
     fontSize: FONT_SIZES.xs,
-    color: COLORS.textSecondary,
+    color: COLORS.textLight,
+    marginTop: SPACING.xs,
   },
 });

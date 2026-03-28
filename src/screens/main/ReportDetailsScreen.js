@@ -209,12 +209,11 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.gray200,
   },
   detailCard: {
-    backgroundColor: COLORS.white,
-    padding: SPACING.md,
-    borderRadius: RADIUS.md,
-    borderWidth: 1,
-    borderColor: COLORS.border,
+    backgroundColor: COLORS.card,
+    padding: SPACING.lg,
+    borderRadius: RADIUS.xl,
     gap: SPACING.md,
+    ...SHADOWS.sm,
   },
   detailRow: {
     flexDirection: 'row',
@@ -235,7 +234,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.xs,
     borderRadius: RADIUS.full,
-    backgroundColor: COLORS.gray100,
+    backgroundColor: COLORS.surface,
   },
   tagText: {
     fontSize: FONT_SIZES.sm,

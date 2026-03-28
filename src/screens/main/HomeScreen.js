@@ -87,31 +87,34 @@ export default function HomeScreen({ navigation }) {
     <View style={styles.header}>
       <View style={styles.headerTop}>
         <View>
-          <Text style={styles.greeting}>Hello there!</Text>
-          <Text style={styles.location}>
-            <Ionicons name="location-outline" size={14} color={COLORS.gray400} />
-            {userLocation ? ' Current Location' : ' Location not available'}
-          </Text>
+          <Text style={styles.greeting}>Hello there</Text>
+          <View style={styles.locationRow}>
+            <Ionicons name="location-outline" size={13} color={COLORS.textLight} />
+            <Text style={styles.location}>
+              {userLocation ? 'Current Location' : 'Location unavailable'}
+            </Text>
+          </View>
         </View>
         <TouchableOpacity style={styles.profileButton} onPress={handleViewProfile}>
-          <Ionicons name="person" size={24} color={COLORS.primary} />
+          <Ionicons name="person-outline" size={20} color={COLORS.primary} />
         </TouchableOpacity>
       </View>
 
-      {/* Main Report Button */}
-      <TouchableOpacity style={styles.reportButton} onPress={handleCreateReport}>
-        <View style={styles.reportButtonContent}>
-          <Ionicons name="add-circle" size={28} color={COLORS.white} />
-          <Text style={styles.reportButtonText}>Report an Issue</Text>
+      {/* Main CTA — clean pill button layout */}
+      <TouchableOpacity style={styles.reportButton} onPress={handleCreateReport} activeOpacity={0.8}>
+        <View style={styles.reportButtonIcon}>
+          <Ionicons name="add" size={24} color={COLORS.white} />
         </View>
-        <Text style={styles.reportButtonSubtext}>
-          Help improve your community
-        </Text>
+        <View style={styles.reportButtonTextWrap}>
+          <Text style={styles.reportButtonText}>Report an Issue</Text>
+          <Text style={styles.reportButtonSubtext}>Help improve your community</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={20} color={COLORS.white} style={{ opacity: 0.7 }} />
       </TouchableOpacity>
 
-      {/* Quick Categories */}
+      {/* Quick Categories — horizontal scroll */}
       <View style={styles.categoriesSection}>
-        <Text style={styles.sectionTitle}>Quick Report</Text>
+        <Text style={styles.sectionTitle}>Categories</Text>
         <FlatList
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -124,18 +127,16 @@ export default function HomeScreen({ navigation }) {
               compact
             />
           )}
-          style={styles.categoriesList}
+          contentContainerStyle={styles.categoriesListContent}
         />
       </View>
 
-      {/* Active Requests Section */}
+      {/* Active Requests */}
       {activeRequests.length > 0 && (
         <View style={styles.requestsSection}>
-          <Text style={styles.sectionTitle}>
-            Active Requests Near You
-          </Text>
+          <Text style={styles.sectionTitle}>Nearby Requests</Text>
           <Text style={styles.sectionSubtitle}>
-            {activeRequests.length} request(s) in your area
+            {activeRequests.length} active in your area
           </Text>
         </View>
       )}
@@ -144,11 +145,13 @@ export default function HomeScreen({ navigation }) {
 
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
-      <Ionicons name="notifications-outline" size={48} color={COLORS.gray300} />
-      <Text style={styles.emptyStateTitle}>No Active Requests</Text>
+      <View style={styles.emptyIconWrap}>
+        <Ionicons name="leaf-outline" size={32} color={COLORS.textLight} />
+      </View>
+      <Text style={styles.emptyStateTitle}>All quiet here</Text>
       <Text style={styles.emptyStateText}>
-        There are currently no requests in your area.{'\n'}
-        Check back later or create your own report!
+        No active requests nearby.{'\n'}
+        Check back soon or file a new report.
       </Text>
     </View>
   );
@@ -193,7 +196,7 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: SPACING.lg,
-    paddingTop: SPACING.lg,
+    paddingTop: SPACING.xl,
   },
   headerTop: {
     flexDirection: 'row',
@@ -203,84 +206,104 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: FONT_SIZES.title,
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: COLORS.textPrimary,
     marginBottom: SPACING.xs,
+    letterSpacing: -0.5,
+  },
+  locationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.xs,
   },
   location: {
     fontSize: FONT_SIZES.sm,
-    color: COLORS.gray400,
+    color: COLORS.textLight,
   },
   profileButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: COLORS.primaryLight + '20',
+    backgroundColor: COLORS.primaryMuted,
     justifyContent: 'center',
     alignItems: 'center',
-    ...SHADOWS.sm,
   },
   reportButton: {
     backgroundColor: COLORS.primary,
-    borderRadius: RADIUS.lg,
-    padding: SPACING.lg,
+    borderRadius: RADIUS.xl,
+    paddingVertical: SPACING.lg,
+    paddingHorizontal: SPACING.lg,
     marginBottom: SPACING.xl,
-    ...SHADOWS.md,
-  },
-  reportButtonContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: SPACING.sm,
+    gap: SPACING.md,
+  },
+  reportButtonIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  reportButtonTextWrap: {
+    flex: 1,
   },
   reportButtonText: {
     fontSize: FONT_SIZES.lg,
-    fontWeight: 'bold',
+    fontWeight: '600',
     color: COLORS.white,
-    marginLeft: SPACING.md,
+    marginBottom: 2,
   },
   reportButtonSubtext: {
-    fontSize: FONT_SIZES.base,
-    color: COLORS.white + 'DD',
-    marginLeft: 36,
+    fontSize: FONT_SIZES.sm,
+    color: 'rgba(255,255,255,0.7)',
   },
   categoriesSection: {
     marginBottom: SPACING.xl,
   },
   sectionTitle: {
-    fontSize: FONT_SIZES.lg,
+    fontSize: FONT_SIZES.sm,
     fontWeight: '600',
-    color: COLORS.textPrimary,
+    color: COLORS.textSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
     marginBottom: SPACING.md,
   },
   sectionSubtitle: {
     fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
-    marginBottom: SPACING.sm,
+    color: COLORS.textLight,
   },
-  categoriesList: {
-    marginLeft: -SPACING.lg,
-    paddingLeft: SPACING.lg,
+  categoriesListContent: {
+    paddingRight: SPACING.lg,
   },
   requestsSection: {
-    marginBottom: SPACING.lg,
+    marginBottom: SPACING.md,
   },
   emptyState: {
     alignItems: 'center',
-    justifyContent: 'center',
     paddingVertical: SPACING.xxl,
-    paddingHorizontal: SPACING.lg,
+    paddingHorizontal: SPACING.xl,
+  },
+  emptyIconWrap: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: COLORS.surface,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: SPACING.md,
   },
   emptyStateTitle: {
     fontSize: FONT_SIZES.lg,
     fontWeight: '600',
     color: COLORS.textPrimary,
-    marginTop: SPACING.lg,
     marginBottom: SPACING.sm,
   },
   emptyStateText: {
-    fontSize: FONT_SIZES.base,
+    fontSize: FONT_SIZES.sm,
     color: COLORS.textSecondary,
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 20,
   },
 });

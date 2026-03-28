@@ -100,10 +100,10 @@ export default function ReportCard({ report, onPress, status }) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.card,
     padding: SPACING.lg,
-    borderRadius: RADIUS.lg,
-    ...SHADOWS.md,
+    borderRadius: RADIUS.xl,
+    ...SHADOWS.sm,
   },
   header: {
     flexDirection: 'row',
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
   categoryIcon: {
     width: 28,
     height: 28,
-    borderRadius: 14,
+    borderRadius: RADIUS.sm,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: SPACING.sm,
@@ -140,9 +140,9 @@ const styles = StyleSheet.create({
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: 2,
-    borderRadius: RADIUS.sm,
+    paddingHorizontal: SPACING.sm + 2,
+    paddingVertical: 3,
+    borderRadius: RADIUS.full,
     gap: SPACING.xs / 2,
   },
   statusText: {
@@ -151,18 +151,18 @@ const styles = StyleSheet.create({
     textTransform: 'capitalize',
   },
   timeText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.textLight,
   },
   title: {
     fontSize: FONT_SIZES.lg,
     fontWeight: '600',
     color: COLORS.textPrimary,
-    marginBottom: SPACING.sm,
+    marginBottom: SPACING.xs,
     lineHeight: 22,
   },
   description: {
-    fontSize: FONT_SIZES.base,
+    fontSize: FONT_SIZES.sm,
     color: COLORS.textSecondary,
     lineHeight: 20,
     marginBottom: SPACING.md,
@@ -170,15 +170,14 @@ const styles = StyleSheet.create({
   tagsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    gap: SPACING.xs,
     marginBottom: SPACING.md,
   },
   tag: {
-    backgroundColor: COLORS.primary + '15',
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: SPACING.xs / 2,
-    borderRadius: RADIUS.sm,
-    marginRight: SPACING.xs,
-    marginBottom: SPACING.xs,
+    backgroundColor: COLORS.primaryMuted,
+    paddingHorizontal: SPACING.sm + 2,
+    paddingVertical: SPACING.xs,
+    borderRadius: RADIUS.full,
   },
   tagText: {
     fontSize: FONT_SIZES.xs,
@@ -187,38 +186,38 @@ const styles = StyleSheet.create({
   },
   moreTags: {
     fontSize: FONT_SIZES.xs,
-    color: COLORS.textSecondary,
-    fontStyle: 'italic',
+    color: COLORS.textLight,
     alignSelf: 'center',
   },
   footer: {
-    borderTopWidth: 1,
+    paddingTop: SPACING.sm,
+    marginTop: SPACING.xs,
+    borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: COLORS.border,
-    paddingTop: SPACING.md,
   },
   mediaInfo: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: SPACING.md,
   },
   mediaItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: SPACING.md,
+    gap: 3,
   },
   mediaText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
-    marginLeft: SPACING.xs / 2,
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.textLight,
   },
   locationItem: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
+    gap: 3,
   },
   locationText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
-    marginLeft: SPACING.xs / 2,
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.textLight,
     flex: 1,
   },
 });
