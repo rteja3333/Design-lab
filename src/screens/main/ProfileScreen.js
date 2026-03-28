@@ -236,17 +236,12 @@ export default function ProfileScreen({ navigation }) {
             <ReportCard 
               report={item} 
               onPress={() => handleReportPress(item)}
+              status={{
+                label: item.status.charAt(0).toUpperCase() + item.status.slice(1),
+                color: getStatusColor(item.status),
+                icon: getStatusIcon(item.status),
+              }}
             />
-            <View style={styles.reportStatus}>
-              <Ionicons 
-                name={getStatusIcon(item.status)} 
-                size={16} 
-                color={getStatusColor(item.status)} 
-              />
-              <Text style={[styles.reportStatusText, { color: getStatusColor(item.status) }]}>
-                {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
-              </Text>
-            </View>
           </View>
         )}
         ListHeaderComponent={renderHeader}
@@ -401,24 +396,6 @@ const styles = StyleSheet.create({
   reportCardContainer: {
     marginHorizontal: SPACING.lg,
     marginBottom: SPACING.md,
-    position: 'relative',
-  },
-  reportStatus: {
-    position: 'absolute',
-    top: SPACING.md,
-    right: SPACING.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.white,
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: SPACING.xs,
-    borderRadius: RADIUS.sm,
-    ...SHADOWS.sm,
-  },
-  reportStatusText: {
-    fontSize: FONT_SIZES.xs,
-    fontWeight: '500',
-    marginLeft: SPACING.xs,
   },
   emptyState: {
     alignItems: 'center',

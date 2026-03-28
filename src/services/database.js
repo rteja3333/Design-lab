@@ -149,6 +149,14 @@ export const reportService = {
         { merge: true }
       );
 
+      // Increment request's currentCount if report is linked to a request
+      if (reportData.requestId) {
+        const requestRef = doc(db, 'requests', reportData.requestId);
+        await updateDoc(requestRef, {
+          currentCount: increment(1),
+        });
+      }
+
       return { success: true, id: docRef.id };
     } catch (error) {
       console.error('Error creating report:', error);

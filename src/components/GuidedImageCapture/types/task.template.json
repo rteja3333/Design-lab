@@ -1,0 +1,51 @@
+{
+    "task_id": "TASK_ID_PLACEHOLDER",
+    "report_id": "REPORT_ID_PLACEHOLDER",
+    "issued_at": "YYYY-MM-DDTHH:MM:SSZ",
+    "expires_at": "YYYY-MM-DDTHH:MM:SSZ",
+    "capture_location": {
+        "lat": 0.0,
+        "lng": 0.0,
+        "radius_meters": 0,
+        "landmark_hint": "Landmark or location description"
+    },
+    "capture_orientation": {
+        "orientation": "portrait",
+        "facing_direction": "N",
+        "distance_from_subject_meters": {
+            "min": 0,
+            "max": 0
+        },
+        "subject_hint": "Describe the subject to capture"
+    },
+    "subject": {
+        "object_of_interest": "Object of interest",
+        "fault_description": "Describe any faults or issues",
+        "focus_region": "center",
+        "secondary_context": [
+            "Secondary context 1",
+            "Secondary context 2"
+        ],
+        "background_context": [
+            "Background context 1"
+        ]
+    },
+    "capture_requirements": [
+        {
+            "shot_id": "SHOT_ID_PLACEHOLDER",
+            "label": "Description of required shot",
+            "media_type": "photo",
+            "priority": 1
+        }
+    ],
+    "quality_thresholds": {
+        "min_resolution": "RESOLUTION_PLACEHOLDER",
+        "max_blur_score": 0.0,
+        "min_brightness": 0,
+        "max_tilt_degrees": 0,
+        "file_size_mb": {
+            "min": 0.0,
+            "max": 0.0
+        }
+    }
+}

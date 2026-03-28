@@ -1,0 +1,26 @@
+export const guidedTheme = {
+  colors: {
+    ready: '#57e58b',
+    readyBorder: '#8bf0af',
+    readyGlow: 'rgba(87, 229, 139, 0.45)',
+    warning: '#f7d45f',
+    error: '#ff7a76',
+    errorBorder: '#ff9f95',
+    disabled: 'rgba(126, 111, 98, 0.6)',
+    disabledBorder: 'rgba(255,255,255,0.16)',
+    mask: 'rgba(34, 22, 13, 0.54)',
+    panel: 'rgba(137, 108, 83, 0.24)',
+    panelBorder: 'rgba(255,255,255,0.24)',
+    title: '#f8f3ea',
+    text: '#fffaf0',
+    mutedText: 'rgba(255,245,230,0.72)',
+    track: 'rgba(255,255,255,0.18)',
+    buttonLabel: '#1f180f',
+    ghostButtonLabel: '#f8f3ea',
+    corner: 'rgba(255,255,255,0.78)',
+  },
+  layout: {
+    cutoutRadius: 26,
+    panelRadius: 24,
+  },
+};
