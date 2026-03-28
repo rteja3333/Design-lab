@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 // Constants
 import { COLORS, FONT_SIZES, SPACING, RADIUS, SHADOWS, CATEGORIES } from '../constants/theme';
 
-export default function ReportCard({ report, onPress }) {
+export default function ReportCard({ report, onPress, status }) {
   const getTimeAgo = (timestamp) => {
     if (!timestamp) return 'Unknown time';
     
@@ -36,7 +36,15 @@ export default function ReportCard({ report, onPress }) {
           <Text style={styles.categoryText}>{category.name}</Text>
         </View>
         
-        <Text style={styles.timeText}>{getTimeAgo(report.createdAt)}</Text>
+        <View style={styles.headerRight}>
+          {status && (
+            <View style={[styles.statusBadge, { backgroundColor: status.color + '20' }]}>
+              <Ionicons name={status.icon} size={12} color={status.color} />
+              <Text style={[styles.statusText, { color: status.color }]}>{status.label}</Text>
+            </View>
+          )}
+          <Text style={styles.timeText}>{getTimeAgo(report.createdAt)}</Text>
+        </View>
       </View>
 
       <Text style={styles.title} numberOfLines={2}>
@@ -106,6 +114,8 @@ const styles = StyleSheet.create({
   categoryInfo: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
+    marginRight: SPACING.sm,
   },
   categoryIcon: {
     width: 28,
@@ -119,6 +129,26 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.sm,
     color: COLORS.textSecondary,
     fontWeight: '500',
+    flexShrink: 1,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexShrink: 0,
+    gap: SPACING.sm,
+  },
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: 2,
+    borderRadius: RADIUS.sm,
+    gap: SPACING.xs / 2,
+  },
+  statusText: {
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '600',
+    textTransform: 'capitalize',
   },
   timeText: {
     fontSize: FONT_SIZES.sm,

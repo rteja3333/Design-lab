@@ -8,7 +8,7 @@ const CONFIG = {
 
     // ── developer flags ──────────────────────────
     DEV_MODE: true, // shows DevOverlay telemetry panel
-    TEST_MODE: TEST_MODE_VALUES.RUN_VALIDATION_ON_TEST_TASK as TEST_MODE_VALUES, // enables test mode behavior
+    TEST_MODE: TEST_MODE_VALUES.OFF as TEST_MODE_VALUES, // enables test mode behavior
 
     // ── timing ───────────────────────────────────
     TEST_MODE_IMAGE_VALIDATION_DELAY_MS: 5000, // simulated image validation delay in VALIDATE

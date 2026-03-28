@@ -1,6 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 
 // Screens
@@ -158,8 +159,20 @@ export default function AppNavigator() {
       <Tab.Screen 
         name="HomeTab" 
         component={HomeStackNavigator}
-        options={{
-          tabBarLabel: 'Home',
+        options={({ route }) => {
+          const routeName = getFocusedRouteNameFromRoute(route) ?? 'HomeMain';
+          return {
+            tabBarLabel: 'Home',
+            tabBarStyle: routeName === ROUTES.CAMERA
+              ? { display: 'none' }
+              : {
+                  backgroundColor: COLORS.white,
+                  borderTopWidth: 1,
+                  borderTopColor: COLORS.border,
+                  paddingBottom: 5,
+                  height: 60,
+                },
+          };
         }}
       />
       <Tab.Screen 

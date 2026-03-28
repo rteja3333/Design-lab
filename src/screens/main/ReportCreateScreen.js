@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,24 +8,41 @@ import {
   TextInput,
   Alert
 } from 'react-native';
+import { Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { locationService } from '../../services/location';
 import { reportService } from '../../services/database';
 
 // Constants
-import { COLORS, FONT_SIZES, SPACING, RADIUS, SHADOWS, CATEGORIES } from '../../constants/theme';
+import { COLORS, FONT_SIZES, SPACING, RADIUS, SHADOWS, CATEGORIES, ROUTES } from '../../constants/theme';
 
 export default function ReportCreateScreen({ navigation, route }) {
-  const { selectedCategory } = route.params || {};
+  const { selectedCategory, request, captureResult } = route.params || {};
+
+  // Pre-fill category from request if available
+  const initialCategory = request
+    ? CATEGORIES.find(c => c.id === request.category) || selectedCategory || null
+    : selectedCategory || null;
   
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState(selectedCategory || null);
+  const [category, setCategory] = useState(initialCategory);
   const [tags, setTags] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [location, setLocation] = useState(null);
   const [address, setAddress] = useState('');
+  const [capturedImages, setCapturedImages] = useState([]);
+
+  // Pick up image returned from CameraScreen
+  useEffect(() => {
+    if (captureResult?.imageUri) {
+      setCapturedImages(prev => {
+        if (prev.some(img => img === captureResult.imageUri)) return prev;
+        return [...prev, captureResult.imageUri];
+      });
+    }
+  }, [captureResult]);
 
   const handleSubmit = async () => {
     if (!title.trim() || !description.trim() || !category) {
@@ -40,10 +57,11 @@ export default function ReportCreateScreen({ navigation, route }) {
         description: description.trim(),
         category: category.id,
         tags,
-        images: [],
+        images: capturedImages,
         videos: [],
         location: location?.geoPoint || null,
         address,
+        ...(request?.id ? { requestId: request.id } : {}),
       };
 
       const result = await reportService.createReport(payload);
@@ -62,7 +80,7 @@ export default function ReportCreateScreen({ navigation, route }) {
           [
             {
               text: 'OK',
-              onPress: () => navigation.goBack()
+              onPress: () => navigation.popToTop()
             }
           ]
         );
@@ -75,7 +93,7 @@ export default function ReportCreateScreen({ navigation, route }) {
         [
           {
             text: 'OK',
-            onPress: () => navigation.goBack()
+            onPress: () => navigation.popToTop()
           }
         ]
       );
@@ -201,13 +219,30 @@ export default function ReportCreateScreen({ navigation, route }) {
         {/* Tag Selector */}
         {renderTagSelector()}
 
-        {/* Media Section (Placeholder) */}
+        {/* Media Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Photos & Videos</Text>
-          <TouchableOpacity style={styles.mediaButton}>
+          {capturedImages.length > 0 && (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imagePreviewRow}>
+              {capturedImages.map((uri, index) => (
+                <View key={index} style={styles.imagePreviewContainer}>
+                  <Image source={{ uri }} style={styles.imagePreview} />
+                  <TouchableOpacity
+                    style={styles.removeImageButton}
+                    onPress={() => setCapturedImages(prev => prev.filter((_, i) => i !== index))}
+                  >
+                    <Ionicons name="close-circle" size={22} color={COLORS.error} />
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </ScrollView>
+          )}
+          <TouchableOpacity
+            style={styles.mediaButton}
+            onPress={() => navigation.navigate(ROUTES.CAMERA, { request })}
+          >
             <Ionicons name="camera-outline" size={24} color={COLORS.primary} />
             <Text style={styles.mediaButtonText}>Add Photos/Videos</Text>
-            <Text style={styles.mediaButtonSubtext}>Coming soon</Text>
           </TouchableOpacity>
         </View>
 
@@ -345,6 +380,26 @@ const styles = StyleSheet.create({
   tagTextSelected: {
     color: COLORS.white,
   },
+  imagePreviewRow: {
+    marginBottom: SPACING.md,
+  },
+  imagePreviewContainer: {
+    position: 'relative',
+    marginRight: SPACING.sm,
+  },
+  imagePreview: {
+    width: 100,
+    height: 100,
+    borderRadius: RADIUS.md,
+    backgroundColor: COLORS.gray200,
+  },
+  removeImageButton: {
+    position: 'absolute',
+    top: -6,
+    right: -6,
+    backgroundColor: COLORS.white,
+    borderRadius: 11,
+  },
   mediaButton: {
     alignItems: 'center',
     padding: SPACING.lg,
@@ -359,11 +414,6 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     fontWeight: '500',
     marginTop: SPACING.sm,
-  },
-  mediaButtonSubtext: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
-    marginTop: SPACING.xs,
   },
   locationButton: {
     flexDirection: 'row',

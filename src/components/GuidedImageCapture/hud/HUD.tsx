@@ -10,9 +10,9 @@ import { useInstructionHUD } from './InstructionHUD/useInstructionHUD'
 import { Scanner } from './Scanner/Scanner'
 import { useScanner } from './Scanner/useScanner'
 
-const HUD: React.FC = () => {
+const HUD: React.FC<{ onButtonPress: () => void }> = ({ onButtonPress }) => {
     const instructionData = useInstructionHUD()
-    const controlBarData = useControlBar()
+    const controlBarData = useControlBar(onButtonPress)
     const devOverlayData = useDevOverlay()
     const scannerData = useScanner()
     const currentState = useEngineStore((state) => state.currentState)

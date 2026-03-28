@@ -1,32 +1,27 @@
-// GuidedCameraScreen.tsx
-// Receives task.json prop, mounts useEngine, and composes CameraView + HUD.
-// No logic, orchestration only.
-// No direct state or store access.
-//
-// Exports: React.FC<{ task: TaskJson }>
-//
-// Depends on: ../types/types, engine/useEngine, hud/HUD
+// NormalCameraScreen.tsx
+// Simplified camera screen with linear flow: START → CAPTURE → SUBMIT → DONE.
+// Reuses the same HUD, stores, and camera infrastructure as GuidedCameraScreen
+// but without navigation/alignment validation or instructor loops.
 
 import { StatusBar, StyleSheet, Text, View } from 'react-native'
 
 import { CameraView, useCameraPermissions } from 'expo-camera'
 import { Image } from 'expo-image'
 import { useEffect, useRef } from 'react'
-import { useEngine } from './engine/useEngine'
+import { useNormalEngine } from './engine/useNormalEngine'
 import { registerCaptureFrame } from './engine/useEngineUtils'
-import { useTelemetry } from './hooks/useTelemetry'
 import { HUD } from './hud/HUD'
 import { useCaptureStore } from './stores/useCaptureStore'
 import { useEngineStore } from './stores/useEngineStore'
 import type { CaptureResult, TaskJson } from './types/types'
 import CONFIG from './types/config'
 
-interface GuidedCameraScreenProps {
+interface NormalCameraScreenProps {
 	task: TaskJson
 	onComplete: (result: CaptureResult) => void
 }
 
-const GuidedCameraScreen: React.FC<GuidedCameraScreenProps> = ({ task, onComplete }) => {
+const NormalCameraScreen: React.FC<NormalCameraScreenProps> = ({ task, onComplete }) => {
 	const cameraRef = useRef<CameraView | null>(null)
 	const [permission, requestPermission] = useCameraPermissions()
 	const isPreviewFrozen = useCaptureStore((state) => state.isPreviewFrozen)
@@ -45,11 +40,8 @@ const GuidedCameraScreen: React.FC<GuidedCameraScreenProps> = ({ task, onComplet
 		}
 	}, [permission, requestPermission])
 
-	// Start sensor and location subscriptions
-	useTelemetry()
-
-	// Mount engine and get handlers
-	const { onButtonPress } = useEngine()
+	// Mount simplified engine
+	const { onButtonPress } = useNormalEngine()
 
 	// Register capture frame handler
 	useEffect(() => {
@@ -71,7 +63,7 @@ const GuidedCameraScreen: React.FC<GuidedCameraScreenProps> = ({ task, onComplet
 	useEffect(() => {
 		if (currentState === 'DONE') {
 			const result = useCaptureStore.getState().buildResult()
-			if (CONFIG.DEV_MODE) console.log('[GuidedCameraScreen:DONE]', result)
+			if (CONFIG.DEV_MODE) console.log('[NormalCameraScreen:DONE]', result)
 			if (result) onComplete(result)
 		}
 	}, [currentState])
@@ -102,7 +94,7 @@ const GuidedCameraScreen: React.FC<GuidedCameraScreenProps> = ({ task, onComplet
 					<Image source={{ uri: frozenImageUri }} style={styles.frozenFrame} contentFit="cover" />
 				) : null}
 
-				{/* HUD overlay with instructions, controls, and dev overlay */}
+			{/* HUD overlay with instructions, controls */}
 				<HUD onButtonPress={onButtonPress} />
 			</View>
 		</>
@@ -134,5 +126,4 @@ const styles = StyleSheet.create({
 	},
 })
 
-export { GuidedCameraScreen }
-
+export { NormalCameraScreen }

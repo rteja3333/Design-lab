@@ -37,18 +37,13 @@ const useCaptureStore = create<CaptureStore>()((set, get) => ({
 	buildResult: () => {
 		const { task, imageUri, telemetrySnapshot } = get()
 
-		if (!task || !imageUri || !telemetrySnapshot) {
-			return null
-		}
-
-		const firstRequirement = task.capture_requirements[0]
-		if (!firstRequirement) {
+		if (!imageUri || !telemetrySnapshot) {
 			return null
 		}
 
 		return {
-			task_id: task.task_id,
-			shot_id: firstRequirement.shot_id,
+			task_id: task?.task_id ?? '',
+			shot_id: task?.capture_requirements?.[0]?.shot_id ?? '',
 			imageUri,
 			telemetry: telemetrySnapshot,
 			submittedAt: new Date().toISOString(),

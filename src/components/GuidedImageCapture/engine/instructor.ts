@@ -277,6 +277,29 @@ const instruct = (state: EngineState, validationResult: ValidationResult = Valid
 	useEngineStore.getState().setInstructions(instructions)
 }
 
+const instructNormal = (state: EngineState): void => {
+
+	const instructionMap: Partial<Record<EngineState, Instruction[]>> = {
+		START: buildInstructions('START', [
+			{ title: 'Ready', message: 'Press button to open the camera.' },
+		]),
+		CAPTURE: buildInstructions('CAPTURE', [
+			{ title: 'Take Photo', message: 'Capture a photo for report.' },
+		]),
+		SUBMIT: buildInstructions('SUBMIT', [
+			{ title: 'Submit', message: 'Looks good! Press button to submit.' },
+		]),
+		DONE: buildInstructions('DONE', [
+			{ title: 'Done', message: 'Photo captured successfully!' },
+		]),
+	}
+
+	const instructions = instructionMap[state]
+	if (instructions) {
+		useEngineStore.getState().setInstructions(instructions)
+	}
+}
+
 const instructValidatorLoopError = (errorState: EngineState): void => {
 	useEngineStore.getState().setInstructions([{
 		step: 0,
@@ -286,5 +309,5 @@ const instructValidatorLoopError = (errorState: EngineState): void => {
 	}])
 }
 
-export { instruct, instructValidatorLoopError }
+export { instruct, instructNormal, instructValidatorLoopError }
 

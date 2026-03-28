@@ -1,4 +1,3 @@
-import { onButtonPress } from '../../engine/useEngine'
 import { useEngineStore } from '../../stores/useEngineStore'
 import type { GateState } from '../../types/types'
 
@@ -35,7 +34,7 @@ const getStateLabel = (state: string | null): string => {
     }
 }
 
-const useControlBar = (): ControlBarState => {
+const useControlBar = (onButtonPress: () => void): ControlBarState => {
     const currentState = useEngineStore((state) => state.currentState)
     const gateState = useEngineStore((state) => state.gateState)
     const instructions = useEngineStore((state) => state.instructions)
