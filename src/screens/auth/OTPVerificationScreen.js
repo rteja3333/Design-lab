@@ -144,18 +144,18 @@ export default function OTPVerificationScreen({ navigation, route }) {
             style={styles.backButton}
             onPress={() => navigation.goBack()}
           >
-            <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
+            <Ionicons name="chevron-back" size={24} color={COLORS.textPrimary} />
           </TouchableOpacity>
         </View>
 
         <View style={styles.content}>
           <View style={styles.iconContainer}>
-            <Ionicons name="shield-checkmark" size={40} color={COLORS.primary} />
+            <Ionicons name="shield-checkmark-outline" size={36} color={COLORS.primary} />
           </View>
 
-          <Text style={styles.title}>Verify Your Number</Text>
+          <Text style={styles.title}>Verification</Text>
           <Text style={styles.subtitle}>
-            We've sent a 6-digit code to{'\n'}
+            Enter the 6-digit code sent to{'\n'}
             <Text style={styles.phoneText}>{formatPhoneNumber(phoneNumber)}</Text>
           </Text>
 
@@ -198,12 +198,10 @@ export default function OTPVerificationScreen({ navigation, route }) {
               </TouchableOpacity>
             ) : (
               <Text style={styles.timerText}>
-                Resend code in {resendTimer}s
+                Resend in {resendTimer}s
               </Text>
             )}
           </View>
-
-          <Text style={styles.helpText}>Enter the 6-digit OTP sent to your phone.</Text>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -219,35 +217,38 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    padding: SPACING.lg,
+    paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.md,
   },
   backButton: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: COLORS.surface,
     justifyContent: 'center',
     alignItems: 'center',
   },
   content: {
     flex: 1,
-    paddingHorizontal: SPACING.lg,
+    paddingHorizontal: SPACING.xl,
     alignItems: 'center',
     justifyContent: 'center',
   },
   iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: COLORS.primaryLight + '20',
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: COLORS.primaryMuted,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: SPACING.xl,
+    marginBottom: SPACING.lg,
   },
   title: {
-    fontSize: FONT_SIZES.title,
-    fontWeight: 'bold',
+    fontSize: FONT_SIZES.xxl,
+    fontWeight: '700',
     color: COLORS.textPrimary,
-    marginBottom: SPACING.md,
-    textAlign: 'center',
+    marginBottom: SPACING.sm,
+    letterSpacing: -0.3,
   },
   subtitle: {
     fontSize: FONT_SIZES.base,
@@ -262,60 +263,49 @@ const styles = StyleSheet.create({
   },
   otpContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     marginBottom: SPACING.xl,
-    paddingHorizontal: SPACING.md,
+    gap: SPACING.sm,
   },
   otpInput: {
-    width: 45,
-    height: 55,
-    borderWidth: 2,
-    borderColor: COLORS.border,
+    width: 48,
+    height: 56,
+    backgroundColor: COLORS.surface,
     borderRadius: RADIUS.md,
     fontSize: FONT_SIZES.xl,
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: COLORS.textPrimary,
-    marginHorizontal: SPACING.xs,
   },
   otpInputFilled: {
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.primaryLight + '10',
+    backgroundColor: COLORS.primaryMuted,
   },
   verifyButton: {
     backgroundColor: COLORS.primary,
     paddingVertical: SPACING.md,
     paddingHorizontal: SPACING.xxl,
-    borderRadius: RADIUS.md,
+    borderRadius: RADIUS.full,
     alignItems: 'center',
     marginBottom: SPACING.lg,
-    ...SHADOWS.sm,
-    minWidth: 150,
+    minWidth: 180,
   },
   buttonDisabled: {
-    backgroundColor: COLORS.gray400,
+    backgroundColor: COLORS.gray300,
   },
   verifyButtonText: {
     color: COLORS.white,
-    fontSize: FONT_SIZES.lg,
+    fontSize: FONT_SIZES.base,
     fontWeight: '600',
   },
   resendContainer: {
     marginBottom: SPACING.lg,
   },
   resendText: {
-    fontSize: FONT_SIZES.base,
+    fontSize: FONT_SIZES.sm,
     color: COLORS.primary,
     fontWeight: '600',
   },
   timerText: {
-    fontSize: FONT_SIZES.base,
-    color: COLORS.textSecondary,
-  },
-  helpText: {
     fontSize: FONT_SIZES.sm,
-    color: COLORS.secondary,
-    textAlign: 'center',
-    marginTop: SPACING.lg,
-    fontStyle: 'italic',
+    color: COLORS.textLight,
   },
 });

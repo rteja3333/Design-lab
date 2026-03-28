@@ -1,60 +1,63 @@
-// App Constants and Theme Configuration
+// App Constants and Theme Configuration — Eco-Minimalism with Blue Accents
 
-// Color Palette - Modern and vibrant theme
+// Color Palette — Warm neutrals, earthy tones, blue focal points
 export const COLORS = {
-  // Primary colors
-  primary: '#6366f1',       // Indigo - main brand color
-  primaryLight: '#818cf8',   // Light indigo
-  primaryDark: '#4f46e5',    // Dark indigo
-  
-  // Secondary colors
-  secondary: '#f59e0b',      // Amber - for highlights and accents
-  secondaryLight: '#fbbf24', // Light amber
-  secondaryDark: '#d97706',  // Dark amber
-  
-  // Success, warning, error
-  success: '#10b981',        // Emerald
-  warning: '#f59e0b',        // Amber
-  error: '#ef4444',          // Red
-  info: '#3b82f6',           // Blue
-  
-  // Grayscale
+  // Primary — Calm ocean blue
+  primary: '#2563eb',
+  primaryLight: '#60a5fa',
+  primaryDark: '#1d4ed8',
+  primaryMuted: '#dbeafe',      // very soft blue tint
+
+  // Secondary — Warm sage green
+  secondary: '#6b8f71',
+  secondaryLight: '#a3c4a8',
+  secondaryDark: '#4a6b4f',
+
+  // Status
+  success: '#6b8f71',
+  warning: '#c4915e',
+  error: '#c2635a',
+  info: '#2563eb',
+
+  // Neutrals — warm-tinted grays
   white: '#ffffff',
-  gray50: '#f9fafb',
-  gray100: '#f3f4f6',
-  gray200: '#e5e7eb',
-  gray300: '#d1d5db',
-  gray400: '#9ca3af',
-  gray500: '#6b7280',
-  gray600: '#4b5563',
-  gray700: '#374151',
-  gray800: '#1f2937',
-  gray900: '#111827',
+  gray50: '#fafaf8',            // warm off-white
+  gray100: '#f5f4f0',           // stone 100
+  gray200: '#e8e6e1',           // stone 200
+  gray300: '#d6d3cc',
+  gray400: '#a8a39b',
+  gray500: '#787370',
+  gray600: '#5c5856',
+  gray700: '#3d3a38',
+  gray800: '#292725',
+  gray900: '#1c1b19',
   black: '#000000',
-  
-  // Background colors
-  background: '#ffffff',
-  backgroundSecondary: '#f9fafb',
-  backgroundDark: '#1f2937',
-  
-  // Text colors
-  textPrimary: '#111827',
-  textSecondary: '#6b7280',
-  textLight: '#9ca3af',
+
+  // Backgrounds
+  background: '#fafaf8',
+  backgroundSecondary: '#f5f4f0',
+  backgroundDark: '#292725',
+  card: '#ffffff',
+  surface: '#f5f4f0',
+
+  // Text
+  textPrimary: '#1c1b19',
+  textSecondary: '#787370',
+  textLight: '#a8a39b',
   textDark: '#ffffff',
-  
-  // Border colors
-  border: '#e5e7eb',
-  borderLight: '#f3f4f6',
-  borderDark: '#d1d5db',
-  
+
+  // Borders — very subtle
+  border: '#e8e6e1',
+  borderLight: '#f5f4f0',
+  borderDark: '#d6d3cc',
+
   // Status colors
-  pending: '#f59e0b',
-  approved: '#10b981',
-  rejected: '#ef4444',
-  active: '#3b82f6',
-  closed: '#6b7280',
-  expired: '#ef4444'
+  pending: '#c4915e',
+  approved: '#6b8f71',
+  rejected: '#c2635a',
+  active: '#2563eb',
+  closed: '#787370',
+  expired: '#c2635a',
 };
 
 // Typography
@@ -62,70 +65,70 @@ export const FONTS = {
   regular: 'System',
   medium: 'System',
   bold: 'System',
-  light: 'System'
+  light: 'System',
 };
 
 export const FONT_SIZES = {
-  xs: 12,
-  sm: 14,
-  base: 16,
-  lg: 18,
+  xs: 11,
+  sm: 13,
+  base: 15,
+  lg: 17,
   xl: 20,
   xxl: 24,
   title: 28,
-  header: 32
+  header: 34,
 };
 
-// Spacing
+// Spacing — generous for breathing room
 export const SPACING = {
   xs: 4,
   sm: 8,
   md: 16,
   lg: 24,
-  xl: 32,
-  xxl: 48
+  xl: 36,
+  xxl: 56,
 };
 
-// Border Radius
+// Border Radius — organic, rounded, pill-like
 export const RADIUS = {
-  sm: 4,
-  md: 8,
-  lg: 12,
-  xl: 16,
-  full: 999
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 24,
+  full: 999,
 };
 
-// Elevation/Shadow
+// Shadows — barely-there, soft
 export const SHADOWS = {
   sm: {
-    shadowColor: '#000',
+    shadowColor: '#1c1b19',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
     elevation: 1,
   },
   md: {
-    shadowColor: '#000',
+    shadowColor: '#1c1b19',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
   lg: {
-    shadowColor: '#000',
+    shadowColor: '#1c1b19',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 5,
-  }
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 4,
+  },
 };
 
 // App Dimensions
 export const DIMENSIONS = {
   headerHeight: 56,
-  tabBarHeight: 60,
-  buttonHeight: 48,
-  inputHeight: 48
+  tabBarHeight: 64,
+  buttonHeight: 52,
+  inputHeight: 52,
 };
 
 // Report Categories with instructions
@@ -134,7 +137,7 @@ export const CATEGORIES = [
     id: 'infrastructure',
     name: 'Infrastructure',
     icon: 'construct-outline',
-    color: COLORS.primary,
+    color: '#2563eb',       // blue accent
     instructions: {
       photo: 'Take clear photos showing the issue from multiple angles. Include overview and close-up shots.',
       video: 'Record a 30-60 second video showing the problem and its impact on the area.'
@@ -145,7 +148,7 @@ export const CATEGORIES = [
     id: 'environment',
     name: 'Environment',
     icon: 'leaf-outline',
-    color: COLORS.success,
+    color: '#6b8f71',       // sage green
     instructions: {
       photo: 'Capture the environmental issue clearly. Show the extent and impact on surroundings.',
       video: 'Record evidence of the environmental problem and any immediate effects visible.'
@@ -156,7 +159,7 @@ export const CATEGORIES = [
     id: 'safety',
     name: 'Safety & Security',
     icon: 'shield-outline',
-    color: COLORS.error,
+    color: '#c2635a',       // terra cotta
     instructions: {
       photo: 'Document safety hazards clearly. Prioritize your safety while capturing evidence.',
       video: 'Record safety concerns but do not put yourself at risk. Keep recordings brief.'
@@ -167,7 +170,7 @@ export const CATEGORIES = [
     id: 'public_services',
     name: 'Public Services',
     icon: 'business-outline',
-    color: COLORS.secondary,
+    color: '#c4915e',       // warm sand
     instructions: {
       photo: 'Show the service issue and how it affects public access or functionality.',
       video: 'Demonstrate the problem with public service and its impact on users.'
@@ -178,7 +181,7 @@ export const CATEGORIES = [
     id: 'events',
     name: 'Events & Activities',
     icon: 'calendar-outline',
-    color: COLORS.info,
+    color: '#7c8dba',       // muted lavender-blue
     instructions: {
       photo: 'Capture key moments and crowd participation. Include wide shots and details.',
       video: 'Record significant moments, speeches, or activities. Keep videos under 2 minutes.'

@@ -134,7 +134,7 @@ export default function ProfileScreen({ navigation }) {
 
   const renderHeader = () => (
     <View style={styles.header}>
-      {/* Profile Section */}
+      {/* Profile Section — clean centered layout */}
       <View style={styles.profileSection}>
         <View style={styles.profileImageContainer}>
           <Image
@@ -142,62 +142,61 @@ export default function ProfileScreen({ navigation }) {
             style={styles.profileImage}
           />
           <TouchableOpacity style={styles.editImageButton}>
-            <Ionicons name="camera" size={16} color={COLORS.white} />
+            <Ionicons name="camera-outline" size={14} color={COLORS.white} />
           </TouchableOpacity>
         </View>
         
-        <View style={styles.profileInfo}>
-          <Text style={styles.userName}>
-            {user?.displayName || user?.phoneNumber || 'User'}
-          </Text>
-          <Text style={styles.userPhone}>{user?.phoneNumber}</Text>
-          
-          <TouchableOpacity style={styles.editButton} onPress={handleEditProfile}>
-            <Ionicons name="pencil" size={16} color={COLORS.primary} />
-            <Text style={styles.editButtonText}>Edit Profile</Text>
-          </TouchableOpacity>
-        </View>
+        <Text style={styles.userName}>
+          {user?.displayName || user?.phoneNumber || 'User'}
+        </Text>
+        <Text style={styles.userPhone}>{user?.phoneNumber}</Text>
+        
+        <TouchableOpacity style={styles.editButton} onPress={handleEditProfile}>
+          <Text style={styles.editButtonText}>Edit Profile</Text>
+        </TouchableOpacity>
       </View>
 
-      {/* Stats Section */}
+      {/* Stats — horizontal pills */}
       <View style={styles.statsSection}>
         <View style={styles.statCard}>
           <Text style={styles.statNumber}>{userReports.length}</Text>
           <Text style={styles.statLabel}>Reports</Text>
         </View>
-        
+        <View style={styles.statDivider} />
         <View style={styles.statCard}>
           <Text style={styles.statNumber}>
             {userReports.filter(r => r.status === 'approved').length}
           </Text>
           <Text style={styles.statLabel}>Approved</Text>
         </View>
-        
+        <View style={styles.statDivider} />
         <View style={styles.statCard}>
           <Text style={styles.statNumber}>{user?.reputation || 0}</Text>
           <Text style={styles.statLabel}>Reputation</Text>
         </View>
       </View>
 
-      {/* Reports Section Header */}
-      <View style={styles.reportsHeader}>
-        <Text style={styles.sectionTitle}>My Reports</Text>
+      {/* Actions row */}
+      <View style={styles.actionsRow}>
         <TouchableOpacity 
           style={styles.createReportButton}
           onPress={() => navigation.navigate(ROUTES.REPORT_CREATE)}
         >
-          <Ionicons name="add" size={20} color={COLORS.primary} />
+          <Ionicons name="add" size={18} color={COLORS.primary} />
           <Text style={styles.createReportText}>New Report</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.adminRequestButton}
+          onPress={() => navigation.navigate(ROUTES.CREATE_REQUEST)}
+        >
+          <Ionicons name="send-outline" size={14} color={COLORS.secondary} />
+          <Text style={styles.adminRequestText}>Admin Request</Text>
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity
-        style={styles.adminRequestButton}
-        onPress={() => navigation.navigate(ROUTES.CREATE_REQUEST)}
-      >
-        <Ionicons name="send" size={16} color={COLORS.secondary} />
-        <Text style={styles.adminRequestText}>Admin: Create Location Request</Text>
-      </TouchableOpacity>
+      {/* Section title */}
+      <Text style={styles.sectionTitle}>My Reports</Text>
     </View>
   );
 
@@ -272,125 +271,127 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: SPACING.lg,
-    paddingTop: SPACING.lg,
+    paddingTop: SPACING.xl,
   },
   profileSection: {
-    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: SPACING.xl,
-    padding: SPACING.lg,
-    backgroundColor: COLORS.white,
-    borderRadius: RADIUS.lg,
-    ...SHADOWS.md,
+    marginBottom: SPACING.lg,
   },
   profileImageContainer: {
     position: 'relative',
-    marginRight: SPACING.lg,
+    marginBottom: SPACING.md,
   },
   profileImage: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: COLORS.gray100,
+    backgroundColor: COLORS.surface,
   },
   editImageButton: {
     position: 'absolute',
     bottom: 0,
-    right: 0,
+    right: -2,
     width: 28,
     height: 28,
     borderRadius: 14,
     backgroundColor: COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: COLORS.white,
-  },
-  profileInfo: {
-    flex: 1,
+    borderWidth: 3,
+    borderColor: COLORS.background,
   },
   userName: {
     fontSize: FONT_SIZES.xl,
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: COLORS.textPrimary,
     marginBottom: SPACING.xs,
   },
   userPhone: {
-    fontSize: FONT_SIZES.base,
+    fontSize: FONT_SIZES.sm,
     color: COLORS.textSecondary,
     marginBottom: SPACING.md,
   },
   editButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    backgroundColor: COLORS.surface,
+    borderRadius: RADIUS.full,
   },
   editButtonText: {
-    fontSize: FONT_SIZES.base,
+    fontSize: FONT_SIZES.sm,
     color: COLORS.primary,
     fontWeight: '500',
-    marginLeft: SPACING.xs,
   },
   statsSection: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: SPACING.xl,
-    padding: SPACING.lg,
-    backgroundColor: COLORS.white,
-    borderRadius: RADIUS.lg,
-    ...SHADOWS.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: SPACING.lg,
+    paddingVertical: SPACING.lg,
+    backgroundColor: COLORS.card,
+    borderRadius: RADIUS.xl,
+    ...SHADOWS.sm,
   },
   statCard: {
     alignItems: 'center',
+    flex: 1,
+  },
+  statDivider: {
+    width: 1,
+    height: 32,
+    backgroundColor: COLORS.border,
   },
   statNumber: {
-    fontSize: FONT_SIZES.title,
-    fontWeight: 'bold',
+    fontSize: FONT_SIZES.xxl,
+    fontWeight: '700',
     color: COLORS.primary,
-    marginBottom: SPACING.xs,
+    marginBottom: 2,
   },
   statLabel: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.textLight,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
-  reportsHeader: {
+  actionsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: SPACING.lg,
+    gap: SPACING.sm,
+    marginBottom: SPACING.xl,
   },
   sectionTitle: {
-    fontSize: FONT_SIZES.lg,
+    fontSize: FONT_SIZES.sm,
     fontWeight: '600',
-    color: COLORS.textPrimary,
+    color: COLORS.textSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    marginBottom: SPACING.md,
   },
   createReportButton: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.sm,
-    backgroundColor: COLORS.primaryLight + '20',
-    borderRadius: RADIUS.md,
+    backgroundColor: COLORS.primaryMuted,
+    borderRadius: RADIUS.full,
+    gap: SPACING.xs,
   },
   createReportText: {
     fontSize: FONT_SIZES.sm,
     color: COLORS.primary,
     fontWeight: '500',
-    marginLeft: SPACING.xs,
   },
   adminRequestButton: {
-    marginBottom: SPACING.lg,
     flexDirection: 'row',
     alignItems: 'center',
-    alignSelf: 'flex-start',
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.sm,
     borderRadius: RADIUS.full,
-    backgroundColor: COLORS.secondary + '20',
+    backgroundColor: COLORS.surface,
+    gap: SPACING.xs,
   },
   adminRequestText: {
-    marginLeft: SPACING.xs,
-    color: COLORS.secondaryDark,
-    fontWeight: '600',
+    color: COLORS.secondary,
+    fontWeight: '500',
     fontSize: FONT_SIZES.sm,
   },
   reportCardContainer: {
@@ -399,33 +400,32 @@ const styles = StyleSheet.create({
   },
   emptyState: {
     alignItems: 'center',
-    justifyContent: 'center',
     paddingVertical: SPACING.xxl,
-    paddingHorizontal: SPACING.lg,
+    paddingHorizontal: SPACING.xl,
   },
   emptyStateTitle: {
     fontSize: FONT_SIZES.lg,
     fontWeight: '600',
     color: COLORS.textPrimary,
-    marginTop: SPACING.lg,
+    marginTop: SPACING.md,
     marginBottom: SPACING.sm,
   },
   emptyStateText: {
-    fontSize: FONT_SIZES.base,
+    fontSize: FONT_SIZES.sm,
     color: COLORS.textSecondary,
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 20,
     marginBottom: SPACING.lg,
   },
   emptyStateButton: {
     backgroundColor: COLORS.primary,
-    paddingHorizontal: SPACING.xl,
+    paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.md,
-    borderRadius: RADIUS.md,
+    borderRadius: RADIUS.full,
   },
   emptyStateButtonText: {
     color: COLORS.white,
-    fontSize: FONT_SIZES.base,
+    fontSize: FONT_SIZES.sm,
     fontWeight: '600',
   },
   footer: {
@@ -437,14 +437,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.md,
-    borderWidth: 1,
-    borderColor: COLORS.error,
-    borderRadius: RADIUS.md,
+    backgroundColor: COLORS.surface,
+    borderRadius: RADIUS.full,
+    gap: SPACING.sm,
   },
   signOutText: {
-    fontSize: FONT_SIZES.base,
+    fontSize: FONT_SIZES.sm,
     color: COLORS.error,
     fontWeight: '500',
-    marginLeft: SPACING.sm,
   },
 });

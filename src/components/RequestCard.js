@@ -37,7 +37,7 @@ export default function RequestCard({ request, onPress, showDistance = false, us
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'active': return COLORS.success;
+      case 'active': return '#22a55b';
       case 'closed': return COLORS.gray500;
       case 'expired': return COLORS.error;
       default: return COLORS.warning;
@@ -118,15 +118,15 @@ export default function RequestCard({ request, onPress, showDistance = false, us
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.card,
     marginHorizontal: SPACING.lg,
     marginBottom: SPACING.md,
     padding: SPACING.lg,
-    borderRadius: RADIUS.lg,
-    ...SHADOWS.md,
+    borderRadius: RADIUS.xl,
+    ...SHADOWS.sm,
   },
   header: {
-    marginBottom: SPACING.md,
+    marginBottom: SPACING.sm,
   },
   titleContainer: {
     flexDirection: 'row',
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   title: {
-    fontSize: FONT_SIZES.lg,
+    fontSize: FONT_SIZES.base,
     fontWeight: '600',
     color: COLORS.textPrimary,
     flex: 1,
@@ -144,10 +144,10 @@ const styles = StyleSheet.create({
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: SPACING.sm,
+    paddingHorizontal: SPACING.sm + 2,
     paddingVertical: SPACING.xs,
-    backgroundColor: COLORS.gray50,
-    borderRadius: RADIUS.sm,
+    backgroundColor: COLORS.surface,
+    borderRadius: RADIUS.full,
   },
   statusDot: {
     width: 6,
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   description: {
-    fontSize: FONT_SIZES.base,
+    fontSize: FONT_SIZES.sm,
     color: COLORS.textSecondary,
     lineHeight: 20,
     marginBottom: SPACING.md,
@@ -169,58 +169,59 @@ const styles = StyleSheet.create({
   tagsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    gap: SPACING.xs,
     marginBottom: SPACING.md,
   },
   tag: {
-    backgroundColor: COLORS.secondary + '15',
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: SPACING.xs / 2,
-    borderRadius: RADIUS.sm,
-    marginRight: SPACING.xs,
-    marginBottom: SPACING.xs,
+    backgroundColor: COLORS.surface,
+    paddingHorizontal: SPACING.sm + 2,
+    paddingVertical: SPACING.xs,
+    borderRadius: RADIUS.full,
   },
   tagText: {
     fontSize: FONT_SIZES.xs,
-    color: COLORS.secondary,
+    color: COLORS.textSecondary,
     fontWeight: '500',
   },
   moreTags: {
     fontSize: FONT_SIZES.xs,
-    color: COLORS.textSecondary,
-    fontStyle: 'italic',
+    color: COLORS.textLight,
     alignSelf: 'center',
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingTop: SPACING.sm,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: COLORS.border,
   },
   metaInfo: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
+    gap: SPACING.md,
   },
   metaItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: SPACING.md,
+    gap: 3,
   },
   metaText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
-    marginLeft: SPACING.xs / 2,
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.textLight,
   },
   priorityBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: SPACING.xs / 2,
-    borderRadius: RADIUS.sm,
+    paddingHorizontal: SPACING.sm + 2,
+    paddingVertical: SPACING.xs,
+    borderRadius: RADIUS.full,
+    gap: 3,
   },
   priorityText: {
     fontSize: FONT_SIZES.xs,
     color: COLORS.white,
     fontWeight: '600',
-    marginLeft: SPACING.xs / 2,
   },
 });

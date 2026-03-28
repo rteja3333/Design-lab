@@ -314,13 +314,11 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.md,
   },
   textInput: {
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: RADIUS.md,
+    backgroundColor: COLORS.surface,
+    borderRadius: RADIUS.lg,
     padding: SPACING.md,
     fontSize: FONT_SIZES.base,
     color: COLORS.textPrimary,
-    backgroundColor: COLORS.white,
   },
   textArea: {
     height: 120,
@@ -335,17 +333,13 @@ const styles = StyleSheet.create({
   categoryCard: {
     alignItems: 'center',
     padding: SPACING.md,
-    marginRight: SPACING.md,
-    borderRadius: RADIUS.md,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.white,
+    marginRight: SPACING.sm,
+    borderRadius: RADIUS.xl,
+    backgroundColor: COLORS.surface,
     minWidth: 100,
-    ...SHADOWS.sm,
   },
   categoryCardSelected: {
     backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
   },
   categoryText: {
     fontSize: FONT_SIZES.sm,
@@ -364,14 +358,11 @@ const styles = StyleSheet.create({
   tagCard: {
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.sm,
-    borderRadius: RADIUS.md,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.white,
+    borderRadius: RADIUS.full,
+    backgroundColor: COLORS.surface,
   },
   tagCardSelected: {
     backgroundColor: COLORS.secondary,
-    borderColor: COLORS.secondary,
   },
   tagText: {
     fontSize: FONT_SIZES.sm,
@@ -403,11 +394,11 @@ const styles = StyleSheet.create({
   mediaButton: {
     alignItems: 'center',
     padding: SPACING.lg,
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: COLORS.border,
     borderStyle: 'dashed',
-    borderRadius: RADIUS.md,
-    backgroundColor: COLORS.gray50,
+    borderRadius: RADIUS.xl,
+    backgroundColor: COLORS.surface,
   },
   mediaButtonText: {
     fontSize: FONT_SIZES.base,
@@ -419,10 +410,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: SPACING.md,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: RADIUS.md,
-    backgroundColor: COLORS.white,
+    borderRadius: RADIUS.lg,
+    backgroundColor: COLORS.surface,
   },
   locationButtonText: {
     fontSize: FONT_SIZES.base,
@@ -455,17 +444,15 @@ const styles = StyleSheet.create({
   },
   submitSection: {
     padding: SPACING.lg,
-    backgroundColor: COLORS.white,
-    borderTopWidth: 1,
+    backgroundColor: COLORS.background,
+    borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: COLORS.border,
-    ...SHADOWS.md,
   },
   submitButton: {
     backgroundColor: COLORS.primary,
-    paddingVertical: SPACING.md,
-    borderRadius: RADIUS.md,
+    paddingVertical: SPACING.md + 2,
+    borderRadius: RADIUS.full,
     alignItems: 'center',
-    ...SHADOWS.sm,
   },
   submitButtonDisabled: {
     backgroundColor: COLORS.gray300,
