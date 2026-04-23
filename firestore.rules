@@ -23,13 +23,22 @@ service cloud.firestore {
     // Requests: app currently uses same client for admin/user flows
     match /requests/{requestId} {
       allow read: if request.auth != null;
-      allow create, update: if request.auth != null;
+      allow create: if request.auth != null
+                    && request.resource.data.adminId == request.auth.uid;
+      allow update: if request.auth != null && (
+                      resource.data.adminId == request.auth.uid
+                      || (
+                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['currentCount'])
+                        && request.resource.data.currentCount is int
+                        && request.resource.data.currentCount == resource.data.currentCount + 1
+                      )
+                    );
       allow delete: if false;
     }
 
     // Categories: read-only from client
     match /categories/{categoryId} {
-      allow read: if request.auth != null;
+      allow read: if request.auth != null;  
       allow write: if false;
     }
 

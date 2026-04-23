@@ -6,13 +6,17 @@ import {
   StyleSheet,
   ScrollView,
   TextInput,
-  Alert
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ActivityIndicator
 } from 'react-native';
 import { Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { locationService } from '../../services/location';
 import { reportService } from '../../services/database';
+import { storageService } from '../../services/storage';
 
 // Constants
 import { COLORS, FONT_SIZES, SPACING, RADIUS, SHADOWS, CATEGORIES, ROUTES } from '../../constants/theme';
@@ -34,6 +38,48 @@ export default function ReportCreateScreen({ navigation, route }) {
   const [address, setAddress] = useState('');
   const [capturedImages, setCapturedImages] = useState([]);
 
+  const getMinimumImagesRequired = () => {
+    const selectedCategoryId = category?.id || request?.category;
+    const requestTags = request?.tags || [];
+
+    if (request) {
+      if (selectedCategoryId === 'safety') return 2;
+      if (selectedCategoryId === 'environment') return 2;
+      if (selectedCategoryId === 'infrastructure' && requestTags.includes('pothole')) return 2;
+      return 1;
+    }
+
+    return selectedCategoryId === 'safety' ? 2 : 1;
+  };
+
+  const hasEnoughDescriptionDetail = () => {
+    const trimmedDescription = description.trim();
+    const wordCount = trimmedDescription.split(/\s+/).filter(Boolean).length;
+    return trimmedDescription.length >= 12 || wordCount >= 3;
+  };
+
+  const getEvidenceChecklist = () => {
+    const checklist = [
+      {
+        id: 'photos',
+        label: `Add at least ${getMinimumImagesRequired()} photo(s)`,
+        done: capturedImages.length >= getMinimumImagesRequired(),
+      },
+      {
+        id: 'location',
+        label: 'Attach issue location',
+        done: !!location,
+      },
+      {
+        id: 'desc',
+        label: 'Write a clear issue description',
+        done: hasEnoughDescriptionDetail(),
+      },
+    ];
+
+    return checklist;
+  };
+
   // Pick up image returned from CameraScreen
   useEffect(() => {
     if (captureResult?.imageUri) {
@@ -50,21 +96,56 @@ export default function ReportCreateScreen({ navigation, route }) {
       return;
     }
 
+    const minimumImagesRequired = getMinimumImagesRequired();
+    if (capturedImages.length < minimumImagesRequired) {
+      Alert.alert(
+        'More Evidence Needed',
+        `Please add at least ${minimumImagesRequired} photo(s) for this issue type to improve validation quality.`
+      );
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      const payload = {
-        title: title.trim(),
-        description: description.trim(),
-        category: category.id,
-        tags,
-        images: capturedImages,
-        videos: [],
-        location: location?.geoPoint || null,
-        address,
-        ...(request?.id ? { requestId: request.id } : {}),
-      };
+        // Attempt to upload images to Firebase Storage first.
+        let imagesForReport = capturedImages;
+        let imagePathsForReport = [];
+        if (capturedImages && capturedImages.length > 0) {
+          try {
+            const uploadRes = await storageService.uploadMultipleMedia(capturedImages, 'image', 'reports');
+            if (uploadRes.success) {
+              imagesForReport = uploadRes.urls || [];
+              imagePathsForReport = uploadRes.paths || [];
+            } else {
+              Alert.alert(
+                'Upload Failed',
+                uploadRes.error || 'Could not upload one or more photos. Please try again.'
+              );
+              return;
+            }
+          } catch (uploadErr) {
+            Alert.alert(
+              'Upload Failed',
+              uploadErr?.message || 'Could not upload photos. Please try again.'
+            );
+            return;
+          }
+        }
 
-      const result = await reportService.createReport(payload);
+        const payload = {
+          title: title.trim(),
+          description: description.trim(),
+          category: category.id,
+          tags,
+          images: imagesForReport,
+          imagePaths: imagePathsForReport,
+          videos: [],
+          location: location?.geoPoint || null,
+          address,
+          ...(request?.id ? { requestId: request.id } : {}),
+        };
+
+        const result = await reportService.createReport(payload);
       if (!result.success) {
         Alert.alert(
           'Submission failed',
@@ -184,7 +265,15 @@ export default function ReportCreateScreen({ navigation, route }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.content}>
+      <KeyboardAvoidingView
+        style={styles.keyboardView}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+      <ScrollView
+        style={styles.content}
+        contentContainerStyle={styles.contentContainer}
+        keyboardShouldPersistTaps="handled"
+      >
         {/* Title Input */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Title *</Text>
@@ -222,6 +311,9 @@ export default function ReportCreateScreen({ navigation, route }) {
         {/* Media Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Photos & Videos</Text>
+          <Text style={styles.mediaHintText}>
+            Minimum required photos: {getMinimumImagesRequired()}
+          </Text>
           {capturedImages.length > 0 && (
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imagePreviewRow}>
               {capturedImages.map((uri, index) => (
@@ -244,6 +336,17 @@ export default function ReportCreateScreen({ navigation, route }) {
             <Ionicons name="camera-outline" size={24} color={COLORS.primary} />
             <Text style={styles.mediaButtonText}>Add Photos/Videos</Text>
           </TouchableOpacity>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Voice Note</Text>
+          <Text style={styles.mediaHintText}>
+            Voice notes are temporarily unavailable.
+          </Text>
+          <View style={styles.audioDisabledCard}>
+            <Ionicons name="mic-off-outline" size={18} color={COLORS.textLight} />
+            <Text style={styles.audioDisabledText}>Disabled for now</Text>
+          </View>
         </View>
 
         {/* Location Section (Placeholder) */}
@@ -274,6 +377,24 @@ export default function ReportCreateScreen({ navigation, route }) {
             </Text>
           </View>
         )}
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Evidence Checklist</Text>
+          <View style={styles.checklistWrap}>
+            {getEvidenceChecklist().map((item) => (
+              <View key={item.id} style={styles.checklistItem}>
+                <Ionicons
+                  name={item.done ? 'checkmark-circle' : item.optional ? 'ellipse-outline' : 'radio-button-off-outline'}
+                  size={18}
+                  color={item.done ? COLORS.success : item.optional ? COLORS.textLight : COLORS.warning}
+                />
+                <Text style={styles.checklistText}>
+                  {item.label}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </View>
       </ScrollView>
 
       {/* Submit Button */}
@@ -286,11 +407,17 @@ export default function ReportCreateScreen({ navigation, route }) {
           onPress={handleSubmit}
           disabled={!title.trim() || !description.trim() || !category || isSubmitting}
         >
-          <Text style={styles.submitButtonText}>
-            {isSubmitting ? 'Submitting...' : 'Submit Report'}
-          </Text>
+          {isSubmitting ? (
+            <View style={styles.submitLoadingState}>
+              <ActivityIndicator size="small" color={COLORS.white} />
+              <Text style={styles.submitButtonText}>Submitting...</Text>
+            </View>
+          ) : (
+            <Text style={styles.submitButtonText}>Submit Report</Text>
+          )}
         </TouchableOpacity>
       </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -300,18 +427,28 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
+  keyboardView: {
+    flex: 1,
+  },
   content: {
     flex: 1,
     padding: SPACING.lg,
   },
+  contentContainer: {
+    paddingBottom: SPACING.xl,
+  },
   section: {
     marginBottom: SPACING.xl,
+    backgroundColor: COLORS.card,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
+    ...SHADOWS.sm,
   },
   sectionTitle: {
-    fontSize: FONT_SIZES.lg,
+    fontSize: FONT_SIZES.base,
     fontWeight: '600',
     color: COLORS.textPrimary,
-    marginBottom: SPACING.md,
+    marginBottom: SPACING.sm,
   },
   textInput: {
     backgroundColor: COLORS.surface,
@@ -325,7 +462,7 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   characterCount: {
-    fontSize: FONT_SIZES.sm,
+    fontSize: FONT_SIZES.xs,
     color: COLORS.textSecondary,
     textAlign: 'right',
     marginTop: SPACING.xs,
@@ -406,6 +543,39 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     marginTop: SPACING.sm,
   },
+  mediaHintText: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.textSecondary,
+    marginBottom: SPACING.sm,
+  },
+  audioDisabledCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+    backgroundColor: COLORS.surface,
+    borderRadius: RADIUS.lg,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.md,
+    opacity: 0.55,
+  },
+  audioDisabledText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.textLight,
+    fontWeight: '600',
+  },
+  checklistWrap: {
+    gap: SPACING.sm,
+  },
+  checklistItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+  },
+  checklistText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.textSecondary,
+    flex: 1,
+  },
   locationButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -458,8 +628,13 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.gray300,
   },
   submitButtonText: {
-    fontSize: FONT_SIZES.lg,
+    fontSize: FONT_SIZES.base,
     fontWeight: '600',
     color: COLORS.white,
+  },
+  submitLoadingState: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
   },
 });

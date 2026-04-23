@@ -260,18 +260,16 @@ const handleButtonPress = async (): Promise<void> => {
 
 const onButtonPress = (): void => {
     const { currentState, gateState } = useEngineStore.getState();
-
-    // Keep instructions fresh on explicit user interaction.
-    if (currentState && gateState === 'STATIC') {
-        instruct(currentState);
-        return;
-    }
+    console.log('[GuidedEngine] button press', { currentState, gateState, isTransitioning });
 
     // Prevent re-entrant presses during async work (e.g. CAPTURE).
     if (isTransitioning) return;
 
     isTransitioning = true;
-    void handleButtonPress().finally(() => { isTransitioning = false; });
+    void handleButtonPress().finally(() => {
+        isTransitioning = false;
+        console.log('[GuidedEngine] button handling completed');
+    });
 };
 
 export const useEngine = () => {

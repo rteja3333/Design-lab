@@ -152,6 +152,15 @@ export default function AdminCreateRequestScreen({ navigation }) {
           </TouchableOpacity>
         </View>
 
+        <View style={styles.section}>
+          <Text style={styles.label}>Voice Note</Text>
+          <Text style={styles.helperText}>Voice notes are temporarily unavailable.</Text>
+          <View style={styles.audioDisabledCard}>
+            <Ionicons name="mic-off-outline" size={18} color={COLORS.textLight} />
+            <Text style={styles.audioDisabledText}>Disabled for now</Text>
+          </View>
+        </View>
+
         <View style={styles.inlineRow}>
           <View style={styles.inlineField}>
             <Text style={styles.label}>Radius (m)</Text>
@@ -192,6 +201,11 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   textArea: { minHeight: 100 },
+  helperText: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.textSecondary,
+    marginBottom: SPACING.sm,
+  },
   categoryChip: {
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.sm,
@@ -220,6 +234,22 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
   },
   locationText: { marginLeft: SPACING.sm, color: COLORS.primary, flex: 1 },
+  audioDisabledCard: {
+    marginTop: SPACING.xs,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+    backgroundColor: COLORS.surface,
+    borderRadius: RADIUS.lg,
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.md,
+    opacity: 0.55,
+  },
+  audioDisabledText: {
+    color: COLORS.textLight,
+    fontSize: FONT_SIZES.sm,
+    fontWeight: '600',
+  },
   inlineRow: { flexDirection: 'row', gap: SPACING.md, marginBottom: SPACING.lg },
   inlineField: { flex: 1 },
   footer: {

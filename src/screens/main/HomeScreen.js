@@ -6,7 +6,7 @@ import {
   StyleSheet,
   FlatList,
   RefreshControl,
-  Alert
+  ActivityIndicator
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -34,8 +34,8 @@ export default function HomeScreen({ navigation }) {
 
   const initializeScreen = async () => {
     setLoading(true);
-    await getUserLocation();
-    await loadActiveRequests();
+    const currentLocation = await getUserLocation();
+    await loadActiveRequests(currentLocation);
     setLoading(false);
   };
 
@@ -44,15 +44,18 @@ export default function HomeScreen({ navigation }) {
       const result = await locationService.getCurrentLocation();
       if (result.success) {
         setUserLocation(result.location);
+        return result.location;
       }
+      return null;
     } catch (error) {
       console.error('Error getting location:', error);
+      return null;
     }
   };
 
-  const loadActiveRequests = async () => {
+  const loadActiveRequests = async (location = userLocation) => {
     try {
-      const result = await requestService.getActiveRequests(userLocation);
+      const result = await requestService.getActiveRequests(location);
       if (result.success) {
         setActiveRequests(result.data.slice(0, 10)); // Limit to 10 requests
       }
@@ -63,7 +66,8 @@ export default function HomeScreen({ navigation }) {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await Promise.all([getUserLocation(), loadActiveRequests()]);
+    const currentLocation = await getUserLocation();
+    await loadActiveRequests(currentLocation);
     setRefreshing(false);
   };
 
@@ -158,6 +162,12 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
+      {loading && activeRequests.length === 0 ? (
+        <View style={styles.loadingState}>
+          <ActivityIndicator size="small" color={COLORS.primary} />
+          <Text style={styles.loadingText}>Loading nearby requests...</Text>
+        </View>
+      ) : (
       <FlatList
         data={activeRequests}
         keyExtractor={(item) => item.id}
@@ -182,6 +192,7 @@ export default function HomeScreen({ navigation }) {
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
       />
+      )}
     </SafeAreaView>
   );
 }
@@ -305,5 +316,15 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
+  },
+  loadingState: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.sm,
+  },
+  loadingText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.textSecondary,
   },
 });

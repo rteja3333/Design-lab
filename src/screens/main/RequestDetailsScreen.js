@@ -1,11 +1,21 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import ReportCard from '../../components/ReportCard';
+import { Audio } from 'expo-av';
+import { authService } from '../../services/auth';
+import { reportService } from '../../services/database';
 import { COLORS, FONT_SIZES, SPACING, RADIUS, SHADOWS, CATEGORIES, ROUTES } from '../../constants/theme';
 
 export default function RequestDetailsScreen({ navigation, route }) {
   const { request } = route.params || {};
+  const [linkedReports, setLinkedReports] = useState([]);
+  const [loadingReports, setLoadingReports] = useState(false);
+  const [reportFilter, setReportFilter] = useState('all');
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [audioLoading, setAudioLoading] = useState(false);
+  const soundRef = useRef(null);
 
   if (!request) {
     return (
@@ -26,6 +36,19 @@ export default function RequestDetailsScreen({ navigation, route }) {
     }
   };
 
+  const getReportStatusColor = (status) => {
+    switch (status) {
+      case 'approved':
+        return COLORS.success;
+      case 'rejected':
+        return COLORS.error;
+      case 'sent_back':
+        return COLORS.info;
+      default:
+        return COLORS.warning;
+    }
+  };
+
   const formatDate = (timestamp) => {
     if (!timestamp) return 'N/A';
     const date = timestamp.seconds
@@ -40,9 +63,83 @@ export default function RequestDetailsScreen({ navigation, route }) {
     ? Math.min((request.currentCount || 0) / request.targetCount, 1)
     : 0;
 
+  const locationToGoogleMapsUrl = (location) => {
+    if (!location?.latitude || !location?.longitude) return null;
+    const { latitude, longitude } = location;
+    return `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
+  };
+
+  const handleNavigateToRequest = () => {
+    const url = locationToGoogleMapsUrl(request?.location);
+    if (url) Linking.openURL(url).catch(() => {});
+  };
+
   const handleReport = () => {
     navigation.navigate(ROUTES.REPORT_CREATE, { request });
   };
+
+  const toggleRequestAudio = async () => {
+    if (!request?.audioUrl) return;
+    try {
+      if (soundRef.current && isPlayingAudio) {
+        await soundRef.current.stopAsync();
+        await soundRef.current.unloadAsync();
+        soundRef.current = null;
+        setIsPlayingAudio(false);
+        return;
+      }
+      setAudioLoading(true);
+      const { sound } = await Audio.Sound.createAsync(
+        { uri: request.audioUrl },
+        { shouldPlay: true }
+      );
+      soundRef.current = sound;
+      setIsPlayingAudio(true);
+      sound.setOnPlaybackStatusUpdate((status) => {
+        if (status.didJustFinish) {
+          setIsPlayingAudio(false);
+          sound.unloadAsync();
+          soundRef.current = null;
+        }
+      });
+    } finally {
+      setAudioLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const loadLinkedReports = async () => {
+      if (!request?.id) return;
+      const currentUser = authService.getCurrentUser();
+      const isAdminOwner = !!(currentUser?.uid && request?.adminId && currentUser.uid === request.adminId);
+      if (!isAdminOwner) return;
+
+      setLoadingReports(true);
+      try {
+        const result = await reportService.getReportsByRequestId(request.id);
+        if (result.success) {
+          setLinkedReports(result.data);
+        }
+      } catch (error) {
+        console.error('Error loading linked reports:', error);
+      } finally {
+        setLoadingReports(false);
+      }
+    };
+
+    loadLinkedReports();
+  }, [request?.id, request?.adminId]);
+
+  useEffect(() => () => {
+    if (soundRef.current) {
+      soundRef.current.unloadAsync();
+    }
+  }, []);
+
+  const visibleReports = linkedReports.filter((report) => {
+    if (reportFilter === 'all') return true;
+    return report.status === reportFilter;
+  });
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -89,12 +186,17 @@ export default function RequestDetailsScreen({ navigation, route }) {
           <Text style={styles.sectionTitle}>Details</Text>
           <View style={styles.detailCard}>
             {request.location && (
-              <View style={styles.detailRow}>
-                <Ionicons name="location-outline" size={18} color={COLORS.primary} />
-                <Text style={styles.detailText}>
-                  Location: {request.location.latitude?.toFixed(4)}, {request.location.longitude?.toFixed(4)}
-                </Text>
-              </View>
+              <TouchableOpacity style={styles.locationBtn} activeOpacity={0.9} onPress={handleNavigateToRequest}>
+                <View style={styles.detailRow}>
+                  <Ionicons name="location-outline" size={18} color={COLORS.primary} />
+                  <Text style={styles.detailText}>
+                    {`Location: ${request.location.latitude?.toFixed(4)}, ${request.location.longitude?.toFixed(4)}`}
+                  </Text>
+                </View>
+                <View style={styles.navigatePill}>
+                  <Ionicons name="navigate-outline" size={16} color={COLORS.white} />
+                </View>
+              </TouchableOpacity>
             )}
             {request.radius > 0 && (
               <View style={styles.detailRow}>
@@ -139,6 +241,78 @@ export default function RequestDetailsScreen({ navigation, route }) {
             </View>
           </View>
         ) : null}
+
+        {request.audioUrl ? (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Requester Voice Note</Text>
+            <TouchableOpacity style={styles.audioCard} onPress={toggleRequestAudio}>
+              <Ionicons
+                name={isPlayingAudio ? 'stop-circle-outline' : 'play-circle-outline'}
+                size={20}
+                color={COLORS.primary}
+              />
+              <Text style={styles.audioCardText}>
+                {audioLoading ? 'Loading audio...' : isPlayingAudio ? 'Stop voice note' : 'Play voice note'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
+
+        {/* Admin submissions view */}
+        {(loadingReports || linkedReports.length > 0) && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Submitted Reports</Text>
+            {!loadingReports && linkedReports.length > 0 ? (
+              <View style={styles.filterRow}>
+                {['all', 'pending', 'approved', 'rejected', 'sent_back'].map((filter) => (
+                  <TouchableOpacity
+                    key={filter}
+                    style={[styles.filterChip, reportFilter === filter && styles.filterChipActive]}
+                    onPress={() => setReportFilter(filter)}
+                  >
+                    <Text style={[styles.filterChipText, reportFilter === filter && styles.filterChipTextActive]}>
+                      {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            ) : null}
+            {loadingReports ? (
+              <View style={styles.loadingReports}>
+                <ActivityIndicator size="small" color={COLORS.primary} />
+                <Text style={styles.loadingReportsText}>Loading submissions...</Text>
+              </View>
+            ) : (
+              visibleReports.map((report) => (
+                <View key={report.id} style={styles.reportCardWrap}>
+                  <ReportCard
+                    report={report}
+                    onPress={() =>
+                      navigation.navigate(ROUTES.REPORT_DETAILS, {
+                        report,
+                        adminView: true,
+                        requestId: request.id,
+                        requestAdminId: request.adminId,
+                      })
+                    }
+                    status={{
+                      label: report.status?.charAt(0).toUpperCase() + report.status?.slice(1),
+                      color: getReportStatusColor(report.status),
+                      icon:
+                        report.status === 'approved'
+                          ? 'checkmark-circle'
+                          : report.status === 'rejected'
+                            ? 'close-circle'
+                            : report.status === 'sent_back'
+                              ? 'return-up-back'
+                            : 'time',
+                    }}
+                  />
+                </View>
+              ))
+            )}
+          </View>
+        )}
       </ScrollView>
 
       {/* Report Button */}
@@ -322,5 +496,71 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.lg,
     fontWeight: '600',
     color: COLORS.white,
+  },
+  audioCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+    backgroundColor: COLORS.card,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
+    ...SHADOWS.sm,
+  },
+  audioCardText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.textPrimary,
+    fontWeight: '600',
+  },
+  locationBtn: {
+    borderRadius: RADIUS.lg,
+    backgroundColor: COLORS.surface,
+    padding: SPACING.md,
+    ...SHADOWS.sm,
+  },
+  navigatePill: {
+    marginTop: SPACING.sm,
+    backgroundColor: COLORS.primary,
+    borderRadius: RADIUS.full,
+    alignSelf: 'flex-start',
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: 4,
+  },
+  filterRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: SPACING.sm,
+    marginBottom: SPACING.md,
+  },
+  filterChip: {
+    backgroundColor: COLORS.surface,
+    borderRadius: RADIUS.full,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.xs,
+  },
+  filterChipActive: {
+    backgroundColor: COLORS.primary,
+  },
+  filterChipText: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.textSecondary,
+    fontWeight: '600',
+  },
+  filterChipTextActive: {
+    color: COLORS.white,
+  },
+  loadingReports: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+    backgroundColor: COLORS.card,
+    borderRadius: RADIUS.md,
+    padding: SPACING.md,
+  },
+  loadingReportsText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.textSecondary,
+  },
+  reportCardWrap: {
+    marginBottom: SPACING.md,
   },
 });

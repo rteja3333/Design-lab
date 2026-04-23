@@ -11,11 +11,13 @@ import { StatusBar, StyleSheet, Text, View } from 'react-native'
 
 import { CameraView, useCameraPermissions } from 'expo-camera'
 import { Image } from 'expo-image'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useEngine } from './engine/useEngine'
 import { registerCaptureFrame } from './engine/useEngineUtils'
+import { useObjectCenterGuide } from './hooks/useObjectCenterGuide'
 import { useTelemetry } from './hooks/useTelemetry'
 import { HUD } from './hud/HUD'
+import { ObjectCenterGuideOverlay } from './hud/ObjectCenterGuideOverlay'
 import { useCaptureStore } from './stores/useCaptureStore'
 import { useEngineStore } from './stores/useEngineStore'
 import type { CaptureResult, TaskJson } from './types/types'
@@ -29,6 +31,7 @@ interface GuidedCameraScreenProps {
 const GuidedCameraScreen: React.FC<GuidedCameraScreenProps> = ({ task, onComplete }) => {
 	const cameraRef = useRef<CameraView | null>(null)
 	const [permission, requestPermission] = useCameraPermissions()
+	const [isCameraReady, setIsCameraReady] = useState(false)
 	const isPreviewFrozen = useCaptureStore((state) => state.isPreviewFrozen)
 	const frozenImageUri = useCaptureStore((state) => state.imageUri)
 	const currentState = useEngineStore((state) => state.currentState)
@@ -50,6 +53,24 @@ const GuidedCameraScreen: React.FC<GuidedCameraScreenProps> = ({ task, onComplet
 
 	// Mount engine and get handlers
 	const { onButtonPress } = useEngine()
+	const objectGuide = useObjectCenterGuide({
+		cameraRef,
+		active:
+			!!permission?.granted &&
+			!isPreviewFrozen &&
+			currentState !== 'START',
+		cameraReady: isCameraReady,
+	})
+
+	useEffect(() => {
+		console.log('[GuidedCameraScreen] state changed', { currentState, isPreviewFrozen })
+	}, [currentState, isPreviewFrozen])
+
+	useEffect(() => {
+		if (!permission?.granted || isCameraReady) return
+		const timer = setTimeout(() => setIsCameraReady(true), 2000)
+		return () => clearTimeout(timer)
+	}, [isCameraReady, permission?.granted])
 
 	// Register capture frame handler
 	useEffect(() => {
@@ -96,10 +117,29 @@ const GuidedCameraScreen: React.FC<GuidedCameraScreenProps> = ({ task, onComplet
 		<>
 			<StatusBar hidden />
 			<View style={styles.container}>
-				<CameraView ref={cameraRef} style={styles.cameraView} facing="back" active={!isPreviewFrozen} />
+				<CameraView
+					ref={cameraRef}
+					style={styles.cameraView}
+					facing="back"
+					active={!isPreviewFrozen}
+					onCameraReady={() => setIsCameraReady(true)}
+				/>
 
 				{isPreviewFrozen && frozenImageUri ? (
 					<Image source={{ uri: frozenImageUri }} style={styles.frozenFrame} contentFit="cover" />
+				) : null}
+
+				{currentState !== 'START' ? (
+					<ObjectCenterGuideOverlay
+						label={objectGuide.label}
+						score={objectGuide.score}
+						instruction={objectGuide.instruction}
+						centered={objectGuide.centered}
+						box={objectGuide.box}
+						ready={objectGuide.ready}
+						running={objectGuide.running}
+						error={objectGuide.error}
+					/>
 				) : null}
 
 				{/* HUD overlay with instructions, controls, and dev overlay */}

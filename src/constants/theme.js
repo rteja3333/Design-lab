@@ -220,6 +220,7 @@ export const ROUTES = {
   // Main App
   HOME: 'Home',
   PROFILE: 'Profile',
+  PROFILE_EDIT: 'ProfileEdit',
   REPORT_CREATE: 'ReportCreate',
   REPORT_DETAILS: 'ReportDetails',
   REQUEST_DETAILS: 'RequestDetails',
@@ -228,6 +229,7 @@ export const ROUTES = {
   
   // Admin
   ADMIN_DASHBOARD: 'AdminDashboard',
+  ADMIN_REQUESTS: 'AdminRequests',
   CREATE_REQUEST: 'CreateRequest'
 };
 

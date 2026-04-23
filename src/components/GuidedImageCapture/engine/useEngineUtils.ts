@@ -4,6 +4,7 @@ import { useTelemetryStore } from '../stores/useTelemetryStore'
 type CaptureFrameHandler = () => Promise<string | null>
 
 let captureFrameHandler: CaptureFrameHandler | null = null
+let captureFrameInFlight = false
 
 const registerCaptureFrame = (handler: CaptureFrameHandler): (() => void) => {
     captureFrameHandler = handler
@@ -23,9 +24,15 @@ const captureImage = async (): Promise<void> => {
 
     if (captureFrameHandler) {
         try {
-            frozenUri = await captureFrameHandler()
+            captureFrameInFlight = true
+            frozenUri = await Promise.race([
+                captureFrameHandler(),
+                new Promise<string | null>((resolve) => setTimeout(() => resolve(null), 5000)),
+            ])
         } catch {
             frozenUri = null
+        } finally {
+            captureFrameInFlight = false
         }
     }
 
@@ -42,6 +49,8 @@ const captureImage = async (): Promise<void> => {
     })
 }
 
+const isCaptureFrameBusy = (): boolean => captureFrameInFlight
+
 const retakeImage = async (): Promise<void> => {
     useCaptureStore.setState({
         imageUri: null,
@@ -50,5 +59,5 @@ const retakeImage = async (): Promise<void> => {
     })
 }
 
-export { captureImage, registerCaptureFrame, retakeImage }
+export { captureImage, isCaptureFrameBusy, registerCaptureFrame, retakeImage }
 

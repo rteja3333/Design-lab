@@ -3,6 +3,10 @@ import { firebaseAuth } from './firebase';
 
 const auth = firebaseAuth;
 let pendingConfirmationResult = null;
+let lastOtpRequest = {
+  phoneNumber: null,
+  recaptchaVerifier: null,
+};
 
 const mapAuthError = (error, fallbackMessage) => {
   const code = error?.code || '';
@@ -54,16 +58,54 @@ export const authService = {
   // Send OTP to phone number
   async sendOTP(phoneNumber, recaptchaVerifier) {
     try {
+      console.log('[OTP][Service] Calling signInWithPhoneNumber', {
+        phoneNumber,
+        hasRecaptchaVerifier: !!recaptchaVerifier,
+      });
       const confirmationResult = await auth.signInWithPhoneNumber(phoneNumber, recaptchaVerifier);
       pendingConfirmationResult = confirmationResult;
+      lastOtpRequest = {
+        phoneNumber,
+        recaptchaVerifier,
+      };
+      console.log('[OTP][Service] signInWithPhoneNumber success', {
+        hasPendingConfirmationResult: !!pendingConfirmationResult,
+      });
       return { 
         success: true
       };
     } catch (error) {
       const mapped = mapAuthError(error, 'Failed to send OTP. Please try again.');
+      console.error('[OTP][Service] signInWithPhoneNumber failed', {
+        code: error?.code,
+        message: error?.message,
+        mappedCode: mapped.code,
+      });
       console.warn('OTP send failed:', mapped.code || error?.message);
       return { success: false, error: mapped.message, title: mapped.title, code: mapped.code };
     }
+  },
+
+  async resendOTP(phoneNumber = null) {
+    const targetPhone = phoneNumber || lastOtpRequest.phoneNumber;
+    if (!targetPhone) {
+      return {
+        success: false,
+        title: 'Session Expired',
+        error: 'Phone number is missing. Please go back and request OTP again.',
+      };
+    }
+
+    const verifier = lastOtpRequest.recaptchaVerifier;
+    if (!verifier) {
+      return {
+        success: false,
+        title: 'Verification Required',
+        error: 'Could not reuse verification session. Please go back and request OTP again.',
+      };
+    }
+
+    return this.sendOTP(targetPhone, verifier);
   },
 
   // Verify OTP and sign in
@@ -75,6 +117,10 @@ export const authService = {
 
       const userCredential = await pendingConfirmationResult.confirm(otpCode);
       pendingConfirmationResult = null;
+      lastOtpRequest = {
+        phoneNumber: null,
+        recaptchaVerifier: null,
+      };
       
       // Check if user exists in Firestore, if not create profile
       const userResult = await userService.getUser(userCredential.user.uid);
@@ -104,6 +150,11 @@ export const authService = {
   async signOut() {
     try {
       await auth.signOut();
+      pendingConfirmationResult = null;
+      lastOtpRequest = {
+        phoneNumber: null,
+        recaptchaVerifier: null,
+      };
       return { success: true };
     } catch (error) {
       console.error('Error signing out:', error);

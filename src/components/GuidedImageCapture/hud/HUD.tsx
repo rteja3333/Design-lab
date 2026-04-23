@@ -20,7 +20,7 @@ const HUD: React.FC<{ onButtonPress: () => void }> = ({ onButtonPress }) => {
     return (
         <View style={styles.container}>
             {/* Black overlay during START state */}
-            {currentState === 'START' && <View style={styles.blackOverlay} />}
+            {currentState === 'START' && <View pointerEvents="none" style={styles.blackOverlay} />}
 
             {/* Instruction HUD at top */}
             <InstructionHUD
@@ -66,13 +66,14 @@ const styles = StyleSheet.create({
     blackOverlay: {
         ...StyleSheet.absoluteFillObject,
         backgroundColor: '#000000',
-        zIndex: 1,
+        zIndex: 0,
     },
     controlBarContainer: {
         position: 'absolute',
         bottom: 0,
         left: 0,
         right: 0,
+        zIndex: 6,
         pointerEvents: 'auto',
     },
     devOverlayAnchor: {

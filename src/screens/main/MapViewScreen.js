@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
   Platform,
 } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE, PROVIDER_DEFAULT } from 'react-native-maps';
+import MapView, { Marker, Callout, PROVIDER_GOOGLE, PROVIDER_DEFAULT } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -99,6 +99,10 @@ export default function MapViewScreen({ navigation }) {
   };
 
   const handleMarkerPress = (item, type) => {
+    if (type === 'request') {
+      navigation.navigate(ROUTES.REQUEST_DETAILS, { request: item });
+      return;
+    }
     setSelectedItem({ ...item, _type: type });
   };
 
@@ -184,6 +188,16 @@ export default function MapViewScreen({ navigation }) {
                 size={isSelected ? 36 : 36}
                 color={isSelected ? '#e03e3e' : '#e67e22'}
               />
+              <Callout tooltip={false} onPress={() => navigation.navigate(ROUTES.REQUEST_DETAILS, { request })}>
+                <View style={styles.calloutContent}>
+                  <Text style={styles.calloutTitle} numberOfLines={1}>
+                    {request.title || 'Active Request'}
+                  </Text>
+                  <Text style={styles.calloutSubtitle} numberOfLines={2}>
+                    {request.instructions || request.description || 'Tap to view admin request details'}
+                  </Text>
+                </View>
+              </Callout>
             </Marker>
           );
         })}
@@ -206,6 +220,16 @@ export default function MapViewScreen({ navigation }) {
               <Ionicons name="close-circle" size={18} color={COLORS.textLight} />
             </TouchableOpacity>
           )}
+        </View>
+        <View style={styles.legendRow}>
+          <View style={styles.legendItem}>
+            <Ionicons name="location-sharp" size={16} color={COLORS.primary} />
+            <Text style={styles.legendText}>Reports</Text>
+          </View>
+          <View style={styles.legendItem}>
+            <Ionicons name="location-sharp" size={16} color="#e67e22" />
+            <Text style={styles.legendText}>Active Requests</Text>
+          </View>
         </View>
       </SafeAreaView>
 
@@ -322,6 +346,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.sm,
   },
+  legendRow: {
+    marginTop: SPACING.sm,
+    flexDirection: 'row',
+    gap: SPACING.sm,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.xs,
+    backgroundColor: COLORS.card,
+    borderRadius: RADIUS.full,
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: SPACING.xs,
+    ...SHADOWS.sm,
+  },
+  legendText: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.textSecondary,
+    fontWeight: '600',
+  },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -381,5 +425,23 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.full,
     padding: SPACING.md,
     ...SHADOWS.sm,
+  },
+  calloutContent: {
+    minWidth: 180,
+    maxWidth: 220,
+    backgroundColor: COLORS.card,
+    borderRadius: RADIUS.md,
+    padding: SPACING.sm,
+  },
+  calloutTitle: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.textPrimary,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  calloutSubtitle: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.textSecondary,
+    lineHeight: 16,
   },
 });

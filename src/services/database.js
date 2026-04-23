@@ -70,6 +70,10 @@ export const userService = {
       const userRef = doc(db, 'users', userData.uid);
       await setDoc(userRef, {
         ...userData,
+        email: userData.email || '',
+        city: userData.city || '',
+        state: userData.state || '',
+        bio: userData.bio || '',
         createdAt: serverTimestamp(),
         totalReports: 0,
         reputation: 0
@@ -226,7 +230,39 @@ export const reportService = {
         id: doc.id,
         ...doc.data()
       }));
-      return { success: true, data: reports };
+
+      // Also include any locally queued/offline reports saved in AsyncStorage
+      try {
+        const existing = await AsyncStorage.getItem('pending_reports');
+        const pending = existing ? JSON.parse(existing) : [];
+        const userPending = pending
+          .filter(r => r.userId === uid || (!r.userId && uid))
+          .map(r => {
+            // Normalize local queued report to match Firestore shape
+            const createdAtSecs = r.createdAtLocal
+              ? Math.floor(new Date(r.createdAtLocal).getTime() / 1000)
+              : Math.floor(Date.now() / 1000);
+            return {
+              id: r.localId || `local-${createdAtSecs}`,
+              ...r,
+              createdAt: { seconds: createdAtSecs },
+            };
+          });
+
+        const combined = [...userPending, ...reports];
+        // Sort combined list by createdAt seconds desc (handles both local and server timestamps)
+        combined.sort((a, b) => {
+          const aSec = a.createdAt?.seconds || 0;
+          const bSec = b.createdAt?.seconds || 0;
+          return bSec - aSec;
+        });
+
+        return { success: true, data: combined };
+      } catch (localErr) {
+        // If reading local queued reports fails, fall back to Firestore-only results
+        console.warn('Failed reading pending_reports from AsyncStorage:', localErr);
+        return { success: true, data: reports };
+      }
     } catch (error) {
       console.error('Error getting user reports:', error);
       return { success: false, error: error.message };
@@ -247,6 +283,47 @@ export const reportService = {
       return { success: true, data: reports };
     } catch (error) {
       console.error('Error getting reports by location:', error);
+      return { success: false, error: error.message };
+    }
+  },
+
+  // Get reports linked to a specific request
+  async getReportsByRequestId(requestId) {
+    try {
+      const q = query(
+        collection(db, 'reports'),
+        where('requestId', '==', requestId),
+        orderBy('createdAt', 'desc')
+      );
+      const querySnapshot = await getDocs(q);
+      const reports = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      return { success: true, data: reports };
+    } catch (error) {
+      console.error('Error getting request reports:', error);
+      return { success: false, error: error.message };
+    }
+  },
+
+  // Admin review action for a report tied to requests
+  async reviewReport(reportId, reviewData) {
+    try {
+      const user = auth.currentUser;
+      if (!user) throw new Error('User not authenticated');
+
+      const reportRef = doc(db, 'reports', reportId);
+      await updateDoc(reportRef, {
+        status: reviewData.status,
+        adminFeedback: reviewData.feedback || '',
+        reviewedBy: user.uid,
+        reviewedAt: serverTimestamp(),
+      });
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error reviewing report:', error);
       return { success: false, error: error.message };
     }
   }
@@ -333,6 +410,26 @@ export const requestService = {
       return { success: true };
     } catch (error) {
       console.error('Error updating request status:', error);
+      return { success: false, error: error.message };
+    }
+  },
+
+  // Get requests created by specific admin user
+  async getRequestsByAdmin(adminId) {
+    try {
+      const q = query(
+        collection(db, 'requests'),
+        where('adminId', '==', adminId),
+        orderBy('createdAt', 'desc')
+      );
+      const querySnapshot = await getDocs(q);
+      const requests = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      return { success: true, data: requests };
+    } catch (error) {
+      console.error('Error getting admin requests:', error);
       return { success: false, error: error.message };
     }
   }

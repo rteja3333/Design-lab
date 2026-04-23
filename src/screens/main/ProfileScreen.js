@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Components
 import ReportCard from '../../components/ReportCard';
@@ -27,15 +29,23 @@ export default function ProfileScreen({ navigation }) {
   const [userReports, setUserReports] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [pendingSyncCount, setPendingSyncCount] = useState(0);
 
   useEffect(() => {
     initializeProfile();
   }, []);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      initializeProfile();
+    }, [])
+  );
+
   const initializeProfile = async () => {
     setLoading(true);
     await loadUserProfile();
     await loadUserReports();
+    await loadPendingSyncCount();
     setLoading(false);
   };
 
@@ -78,9 +88,19 @@ export default function ProfileScreen({ navigation }) {
     }
   };
 
+  const loadPendingSyncCount = async () => {
+    try {
+      const existing = await AsyncStorage.getItem('pending_reports');
+      const pending = existing ? JSON.parse(existing) : [];
+      setPendingSyncCount(Array.isArray(pending) ? pending.length : 0);
+    } catch (error) {
+      setPendingSyncCount(0);
+    }
+  };
+
   const onRefresh = async () => {
     setRefreshing(true);
-    await Promise.all([loadUserProfile(), loadUserReports()]);
+    await Promise.all([loadUserProfile(), loadUserReports(), loadPendingSyncCount()]);
     setRefreshing(false);
   };
 
@@ -105,11 +125,7 @@ export default function ProfileScreen({ navigation }) {
   };
 
   const handleEditProfile = () => {
-    Alert.alert(
-      'Edit Profile',
-      'Profile editing feature will be available in the next update.',
-      [{ text: 'OK' }]
-    );
+    navigation.navigate(ROUTES.PROFILE_EDIT);
   };
 
   const handleReportPress = (report) => {
@@ -120,6 +136,7 @@ export default function ProfileScreen({ navigation }) {
     switch (status) {
       case 'approved': return COLORS.success;
       case 'rejected': return COLORS.error;
+      case 'sent_back': return COLORS.info;
       default: return COLORS.warning;
     }
   };
@@ -128,6 +145,7 @@ export default function ProfileScreen({ navigation }) {
     switch (status) {
       case 'approved': return 'checkmark-circle';
       case 'rejected': return 'close-circle';
+      case 'sent_back': return 'return-up-back';
       default: return 'time';
     }
   };
@@ -150,6 +168,17 @@ export default function ProfileScreen({ navigation }) {
           {user?.displayName || user?.phoneNumber || 'User'}
         </Text>
         <Text style={styles.userPhone}>{user?.phoneNumber}</Text>
+        {!!user?.email && <Text style={styles.userMeta}>{user.email}</Text>}
+        {(user?.city || user?.state) && (
+          <Text style={styles.userMeta}>
+            {[user?.city, user?.state].filter(Boolean).join(', ')}
+          </Text>
+        )}
+        {!!user?.bio && (
+          <Text style={styles.userBio} numberOfLines={3}>
+            {user.bio}
+          </Text>
+        )}
         
         <TouchableOpacity style={styles.editButton} onPress={handleEditProfile}>
           <Text style={styles.editButtonText}>Edit Profile</Text>
@@ -176,6 +205,15 @@ export default function ProfileScreen({ navigation }) {
         </View>
       </View>
 
+      {pendingSyncCount > 0 && (
+        <View style={styles.syncBanner}>
+          <Ionicons name="cloud-upload-outline" size={16} color={COLORS.warning} />
+          <Text style={styles.syncBannerText}>
+            {pendingSyncCount} report{pendingSyncCount > 1 ? 's' : ''} waiting to sync
+          </Text>
+        </View>
+      )}
+
       {/* Actions row */}
       <View style={styles.actionsRow}>
         <TouchableOpacity 
@@ -191,7 +229,15 @@ export default function ProfileScreen({ navigation }) {
           onPress={() => navigation.navigate(ROUTES.CREATE_REQUEST)}
         >
           <Ionicons name="send-outline" size={14} color={COLORS.secondary} />
-          <Text style={styles.adminRequestText}>Admin Request</Text>
+          <Text style={styles.adminRequestText}>Create Request</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.adminRequestButton}
+          onPress={() => navigation.navigate(ROUTES.ADMIN_REQUESTS)}
+        >
+          <Ionicons name="list-outline" size={14} color={COLORS.secondary} />
+          <Text style={styles.adminRequestText}>My Requests</Text>
         </TouchableOpacity>
       </View>
 
@@ -309,7 +355,20 @@ const styles = StyleSheet.create({
   userPhone: {
     fontSize: FONT_SIZES.sm,
     color: COLORS.textSecondary,
+    marginBottom: SPACING.xs,
+  },
+  userMeta: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.textSecondary,
+    marginBottom: SPACING.xs,
+  },
+  userBio: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.textPrimary,
     marginBottom: SPACING.md,
+    textAlign: 'center',
+    lineHeight: 19,
+    maxWidth: 280,
   },
   editButton: {
     paddingHorizontal: SPACING.md,
@@ -331,6 +390,23 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.card,
     borderRadius: RADIUS.xl,
     ...SHADOWS.sm,
+  },
+  syncBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.xs,
+    marginBottom: SPACING.lg,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    borderRadius: RADIUS.full,
+    backgroundColor: COLORS.card,
+    alignSelf: 'center',
+    ...SHADOWS.sm,
+  },
+  syncBannerText: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.warning,
+    fontWeight: '600',
   },
   statCard: {
     alignItems: 'center',
@@ -357,6 +433,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: SPACING.sm,
     marginBottom: SPACING.xl,
+    flexWrap: 'wrap',
   },
   sectionTitle: {
     fontSize: FONT_SIZES.sm,

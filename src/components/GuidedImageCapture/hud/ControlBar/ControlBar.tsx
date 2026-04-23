@@ -1,6 +1,5 @@
-import { BlurView } from 'expo-blur'
 import { useEffect, useRef } from 'react'
-import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native'
+import { Animated, Easing, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 
 import { guidedTheme } from '../theme'
 import type { ControlBarState } from './useControlBar'
@@ -97,34 +96,33 @@ const ControlBar = ({
     return (
         <View style={styles.container}>
             {/* Glass panel wrapper for the full control bar */}
-            <BlurView intensity={20} tint="dark" style={styles.panel}>
+            <View style={styles.panel}>
                 <View style={styles.row}>
                     {/* Left nav: previous instruction */}
                     <View style={styles.sideColumn}>
-                        <Pressable
+                        <TouchableOpacity
                             accessibilityRole="button"
                             accessibilityLabel="Previous instruction"
                             onPress={onPrev}
                             disabled={!canPrev}
-                            style={({ pressed }) => [
+                            activeOpacity={0.75}
+                            style={[
                                 styles.navButton,
                                 !canPrev ? styles.navButtonDisabled : null,
-                                pressed && canPrev ? styles.navButtonPressed : null,
                             ]}>
                             <Text style={styles.navButtonText}>←</Text>
-                        </Pressable>
+                        </TouchableOpacity>
                     </View>
 
                     {/* Center action: shutter button + current state label */}
                     <View style={styles.centerColumn}>
-                        <Pressable
+                        <TouchableOpacity
                             accessibilityRole="button"
                             accessibilityLabel={label}
                             onPress={onPress}
-                            style={({ pressed }) => [
-                                styles.shutterButton,
-                                pressed ? styles.buttonPressed : null,
-                            ]}>
+                            activeOpacity={0.8}
+                            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                            style={styles.shutterButton}>
                             <View style={styles.shutterStage}>
                                 {isActive ? (
                                     <Animated.View
@@ -157,27 +155,27 @@ const ControlBar = ({
                                     />
                                 </View>
                             </View>
-                        </Pressable>
+                        </TouchableOpacity>
                         <Text style={styles.label}>{label}</Text>
                     </View>
 
                     {/* Right nav: next instruction */}
                     <View style={styles.sideColumn}>
-                        <Pressable
+                        <TouchableOpacity
                             accessibilityRole="button"
                             accessibilityLabel="Next instruction"
                             onPress={onNext}
                             disabled={!canNext}
-                            style={({ pressed }) => [
+                            activeOpacity={0.75}
+                            style={[
                                 styles.navButton,
                                 !canNext ? styles.navButtonDisabled : null,
-                                pressed && canNext ? styles.navButtonPressed : null,
                             ]}>
                             <Text style={styles.navButtonText}>→</Text>
-                        </Pressable>
+                        </TouchableOpacity>
                     </View>
                 </View>
-            </BlurView>
+            </View>
         </View>
     )
 }
@@ -186,9 +184,11 @@ const styles = StyleSheet.create({
     // Anchors the bar to the bottom of the HUD overlay.
     container: {
         zIndex: 1,
+        elevation: 30,
         left: 0,
         right: 0,
         bottom: 0,
+        pointerEvents: 'box-none',
     },
     // Frosted panel background and rounded top corners.
     panel: {
@@ -204,6 +204,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingTop: 18,
         paddingBottom: 24,
+        pointerEvents: 'auto',
+        ...(Platform.OS === 'android'
+            ? { elevation: 20 }
+            : {}),
     },
     // Main horizontal layout: left nav, center shutter, right nav.
     row: {

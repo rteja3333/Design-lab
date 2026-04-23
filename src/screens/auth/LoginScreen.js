@@ -24,8 +24,9 @@ import { firebaseConfig } from '../../services/firebase';
 import { COLORS, FONT_SIZES, SPACING, RADIUS, SHADOWS } from '../../constants/theme';
 
 export default function LoginScreen({ navigation }) {
+  const DEFAULT_COUNTRY_CODE = '+91';
   const recaptchaVerifier = useRef(null);
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState(DEFAULT_COUNTRY_CODE);
   const [isLoading, setIsLoading] = useState(false);
 
   const validatePhoneNumber = (phone) => {
@@ -35,15 +36,13 @@ export default function LoginScreen({ navigation }) {
   };
 
   const formatPhoneNumber = (text) => {
-    // Remove all non-digit characters
-    const cleaned = text.replace(/\D/g, '');
-    
-    // Add + prefix if not present
-    if (!cleaned.startsWith('+')) {
-      return '+' + cleaned;
-    }
-    
-    return cleaned;
+    const digitsOnly = text.replace(/\D/g, '');
+    const localNumber = digitsOnly.startsWith('91') ? digitsOnly.slice(2) : digitsOnly;
+    return `${DEFAULT_COUNTRY_CODE}${localNumber}`;
+  };
+
+  const handlePhoneChange = (text) => {
+    setPhoneNumber(formatPhoneNumber(text));
   };
 
   const handleSendOTP = async () => {
@@ -62,17 +61,29 @@ export default function LoginScreen({ navigation }) {
     setIsLoading(true);
 
     try {
+      console.log('[OTP][Login] Starting OTP send flow', {
+        formattedPhone,
+        hasRecaptchaVerifier: !!recaptchaVerifier.current,
+      });
       const result = await authService.sendOTP(formattedPhone, recaptchaVerifier.current);
+      console.log('[OTP][Login] sendOTP response', result);
       if (!result.success) {
+        console.warn('[OTP][Login] OTP send failed', result);
         Alert.alert(result.title || 'Could not Send OTP', result.error || 'Failed to send OTP. Please try again.');
         return;
       }
+      console.log('[OTP][Login] OTP send success, navigating to OTPVerification');
       navigation.navigate('OTPVerification', {
         phoneNumber: formattedPhone,
       });
     } catch (error) {
+      console.error('[OTP][Login] Unexpected error while sending OTP', {
+        code: error?.code,
+        message: error?.message,
+      });
       Alert.alert('Could not Send OTP', 'Something went wrong while requesting OTP. Please try again.');
     } finally {
+      console.log('[OTP][Login] OTP send flow finished');
       setIsLoading(false);
     }
   };
@@ -110,13 +121,14 @@ export default function LoginScreen({ navigation }) {
             <View style={styles.inputContainer}>
               <TextInput
                 style={styles.input}
-                placeholder="+1 234 567 890"
+                placeholder="9876543210"
                 placeholderTextColor={COLORS.textLight}
                 value={phoneNumber}
-                onChangeText={setPhoneNumber}
+                onChangeText={handlePhoneChange}
                 keyboardType="phone-pad"
                 autoComplete="tel"
                 textContentType="telephoneNumber"
+                maxLength={13}
               />
             </View>
 

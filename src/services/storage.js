@@ -1,7 +1,8 @@
-import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { firebaseAuth } from './firebase';
+import { firebaseStorage } from './firebase';
 
-const storage = getStorage();
+const storage = firebaseStorage;
 const auth = firebaseAuth;
 
 export const storageService = {

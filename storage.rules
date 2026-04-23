@@ -1,0 +1,40 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwnerPath(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // Report media uploaded by authenticated users for their own account
+    match /reports/{uid}/{fileName} {
+      allow read: if isSignedIn();
+      allow write: if isOwnerPath(uid);
+    }
+
+    // Profile images uploaded by authenticated users for their own account
+    match /profiles/{uid}/{fileName} {
+      allow read: if isSignedIn();
+      allow write: if isOwnerPath(uid);
+    }
+
+    // Keep audio folders ready even if currently disabled in UI
+    match /report-audio/{uid}/{fileName} {
+      allow read: if isSignedIn();
+      allow write: if isOwnerPath(uid);
+    }
+
+    match /request-audio/{uid}/{fileName} {
+      allow read: if isSignedIn();
+      allow write: if isOwnerPath(uid);
+    }
+
+    // Deny everything else by default
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -29,6 +29,9 @@ export default function OTPVerificationScreen({ navigation, route }) {
   const otpRefs = useRef([]);
 
   useEffect(() => {
+    console.log('[OTP][VerifyScreen] Mounted OTP verification screen', {
+      phoneNumber,
+    });
     // Start countdown timer
     const timer = setInterval(() => {
       setResendTimer((prev) => {
@@ -41,7 +44,10 @@ export default function OTPVerificationScreen({ navigation, route }) {
       });
     }, 1000);
 
-    return () => clearInterval(timer);
+    return () => {
+      clearInterval(timer);
+      console.log('[OTP][VerifyScreen] Unmounted OTP verification screen');
+    };
   }, []);
 
   const handleOtpChange = (text, index) => {
@@ -100,7 +106,11 @@ export default function OTPVerificationScreen({ navigation, route }) {
 
     setIsLoading(true);
     try {
-      // Simulate resending OTP
+      const result = await authService.resendOTP(phoneNumber);
+      if (!result.success) {
+        Alert.alert(result.title || 'Unable to Resend OTP', result.error || 'Please go back and try again.');
+        return;
+      }
       Alert.alert('OTP Sent', 'A new verification code has been sent to your phone.');
       
       // Reset timer
@@ -272,6 +282,8 @@ const styles = StyleSheet.create({
     height: 56,
     backgroundColor: COLORS.surface,
     borderRadius: RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.border,
     fontSize: FONT_SIZES.xl,
     fontWeight: '700',
     color: COLORS.textPrimary,

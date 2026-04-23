@@ -7,10 +7,12 @@ import { StatusBar, StyleSheet, Text, View } from 'react-native'
 
 import { CameraView, useCameraPermissions } from 'expo-camera'
 import { Image } from 'expo-image'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNormalEngine } from './engine/useNormalEngine'
 import { registerCaptureFrame } from './engine/useEngineUtils'
+import { useObjectCenterGuide } from './hooks/useObjectCenterGuide'
 import { HUD } from './hud/HUD'
+import { ObjectCenterGuideOverlay } from './hud/ObjectCenterGuideOverlay'
 import { useCaptureStore } from './stores/useCaptureStore'
 import { useEngineStore } from './stores/useEngineStore'
 import type { CaptureResult, TaskJson } from './types/types'
@@ -22,8 +24,10 @@ interface NormalCameraScreenProps {
 }
 
 const NormalCameraScreen: React.FC<NormalCameraScreenProps> = ({ task, onComplete }) => {
+	const ENABLE_DETECTOR_IN_NORMAL_FLOW = false
 	const cameraRef = useRef<CameraView | null>(null)
 	const [permission, requestPermission] = useCameraPermissions()
+	const [isCameraReady, setIsCameraReady] = useState(false)
 	const isPreviewFrozen = useCaptureStore((state) => state.isPreviewFrozen)
 	const frozenImageUri = useCaptureStore((state) => state.imageUri)
 	const currentState = useEngineStore((state) => state.currentState)
@@ -42,6 +46,25 @@ const NormalCameraScreen: React.FC<NormalCameraScreenProps> = ({ task, onComplet
 
 	// Mount simplified engine
 	const { onButtonPress } = useNormalEngine()
+	const objectGuide = useObjectCenterGuide({
+		cameraRef,
+		active:
+			ENABLE_DETECTOR_IN_NORMAL_FLOW &&
+			!!permission?.granted &&
+			!isPreviewFrozen &&
+			currentState !== 'START',
+		cameraReady: isCameraReady,
+	})
+
+	useEffect(() => {
+		console.log('[NormalCameraScreen] state changed', { currentState, isPreviewFrozen })
+	}, [currentState, isPreviewFrozen])
+
+	useEffect(() => {
+		if (!permission?.granted || isCameraReady) return
+		const timer = setTimeout(() => setIsCameraReady(true), 2000)
+		return () => clearTimeout(timer)
+	}, [isCameraReady, permission?.granted])
 
 	// Register capture frame handler
 	useEffect(() => {
@@ -88,10 +111,29 @@ const NormalCameraScreen: React.FC<NormalCameraScreenProps> = ({ task, onComplet
 		<>
 			<StatusBar hidden />
 			<View style={styles.container}>
-				<CameraView ref={cameraRef} style={styles.cameraView} facing="back" active={!isPreviewFrozen} />
+				<CameraView
+					ref={cameraRef}
+					style={styles.cameraView}
+					facing="back"
+					active={!isPreviewFrozen}
+					onCameraReady={() => setIsCameraReady(true)}
+				/>
 
 				{isPreviewFrozen && frozenImageUri ? (
 					<Image source={{ uri: frozenImageUri }} style={styles.frozenFrame} contentFit="cover" />
+				) : null}
+
+				{ENABLE_DETECTOR_IN_NORMAL_FLOW && currentState !== 'START' ? (
+					<ObjectCenterGuideOverlay
+						label={objectGuide.label}
+						score={objectGuide.score}
+						instruction={objectGuide.instruction}
+						centered={objectGuide.centered}
+						box={objectGuide.box}
+						ready={objectGuide.ready}
+						running={objectGuide.running}
+						error={objectGuide.error}
+					/>
 				) : null}
 
 			{/* HUD overlay with instructions, controls */}

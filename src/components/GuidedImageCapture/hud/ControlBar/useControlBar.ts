@@ -45,18 +45,30 @@ const useControlBar = (onButtonPress: () => void): ControlBarState => {
     const canPrev = instructionIndex > 0
     const canNext = instructionIndex < instructions.length - 1
 
+    const handleMainPress = (): void => {
+        console.log('[ControlBar] main press', {
+            currentState,
+            gateState,
+            instructionIndex,
+            ts: Date.now(),
+        })
+        onButtonPress()
+    }
+
     const handlePrev = (): void => {
+        console.log('[ControlBar] prev press', { instructionIndex })
         useEngineStore.getState().stepInstruction('prev')
     }
 
     const handleNext = (): void => {
+        console.log('[ControlBar] next press', { instructionIndex })
         useEngineStore.getState().stepInstruction('next')
     }
 
     return {
         label,
         gateState,
-        onPress: onButtonPress,
+        onPress: handleMainPress,
         onPrev: handlePrev,
         onNext: handleNext,
         canPrev,

@@ -11,12 +11,66 @@ import TEST_TASK from '../../components/GuidedImageCapture/types/task.json'
  * expected by the guided capture engine.
  */
 function buildTaskFromRequest(request) {
+  const getIssueValidationProfile = () => {
+    const category = request.category;
+    const tags = request.tags || [];
+    const isNightFriendly = tags.includes('streetlight');
+
+    const base = {
+      min_resolution: '480p',
+      max_blur_score: 0.2,
+      min_brightness: 60,
+      max_tilt_degrees: 60,
+      file_size_mb: { min: 0, max: 25 },
+      requiredShots: 1,
+    };
+
+    if (category === 'infrastructure') {
+      return {
+        ...base,
+        min_resolution: '720p',
+        max_tilt_degrees: 35,
+        requiredShots: tags.includes('pothole') ? 2 : 1,
+      };
+    }
+
+    if (category === 'safety') {
+      return {
+        ...base,
+        min_resolution: '720p',
+        max_tilt_degrees: 30,
+        min_brightness: isNightFriendly ? 35 : 55,
+        requiredShots: 2,
+      };
+    }
+
+    if (category === 'environment') {
+      return {
+        ...base,
+        min_resolution: '720p',
+        max_tilt_degrees: 40,
+        requiredShots: 2,
+      };
+    }
+
+    return base;
+  };
+
   const toISO = (ts) => {
     if (!ts) return new Date().toISOString();
     if (ts.seconds) return new Date(ts.seconds * 1000).toISOString();
     if (typeof ts === 'string') return ts;
     return new Date(ts).toISOString();
   };
+
+  const profile = getIssueValidationProfile();
+  const requiredShots = Math.max(1, profile.requiredShots || 1);
+  const shotList = Array.from({ length: requiredShots }).map((_, idx) => ({
+    shot_id: `SHOT-${request.id || '01'}-${idx + 1}`,
+    label: idx === 0 ? (request.title || 'Capture overview') : `Capture evidence angle ${idx + 1}`,
+    media_type: 'photo',
+    priority: idx + 1,
+  }));
 
   return {
     task_id: `TK-REQ-${request.id || 'unknown'}`,
@@ -40,22 +94,15 @@ function buildTaskFromRequest(request) {
       fault_description: request.description || '',
       focus_region: 'centre',
       secondary_context: request.tags || [],
-      background_context: [],
+      background_context: [request.category].filter(Boolean),
     },
-    capture_requirements: [
-      {
-        shot_id: `SHOT-${request.id || '01'}`,
-        label: request.title || 'Capture',
-        media_type: 'photo',
-        priority: 1,
-      },
-    ],
+    capture_requirements: shotList,
     quality_thresholds: {
-      min_resolution: '480p',
-      max_blur_score: 0.20,
-      min_brightness: 60,
-      max_tilt_degrees: 60,
-      file_size_mb: { min: 0, max: 25 },
+      min_resolution: profile.min_resolution,
+      max_blur_score: profile.max_blur_score,
+      min_brightness: profile.min_brightness,
+      max_tilt_degrees: profile.max_tilt_degrees,
+      file_size_mb: profile.file_size_mb,
     },
   };
 }

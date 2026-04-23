@@ -3,16 +3,19 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import { CardStyleInterpolators } from '@react-navigation/stack';
 
 // Screens
 import HomeScreen from '../screens/main/HomeScreen';
 import ProfileScreen from '../screens/main/ProfileScreen';
+import ProfileEditScreen from '../screens/main/ProfileEditScreen';
 import ReportCreateScreen from '../screens/main/ReportCreateScreen';
 import ReportDetailsScreen from '../screens/main/ReportDetailsScreen';
 import RequestDetailsScreen from '../screens/main/RequestDetailsScreen';
 import CameraScreen from '../screens/main/CameraScreen';
 import MapViewScreen from '../screens/main/MapViewScreen';
 import AdminCreateRequestScreen from '../screens/main/AdminCreateRequestScreen';
+import AdminRequestsScreen from '../screens/main/AdminRequestsScreen';
 
 // Constants
 import { ROUTES, COLORS, FONT_SIZES, RADIUS } from '../constants/theme';
@@ -35,6 +38,7 @@ const ecoHeaderOptions = {
     fontWeight: '600',
     color: COLORS.textPrimary,
   },
+  cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
 };
 
 // Home Stack Navigator
@@ -76,6 +80,11 @@ function HomeStackNavigator() {
         component={AdminCreateRequestScreen}
         options={{ title: 'New Request' }}
       />
+      <Stack.Screen
+        name={ROUTES.ADMIN_REQUESTS}
+        component={AdminRequestsScreen}
+        options={{ title: 'My Requests' }}
+      />
     </Stack.Navigator>
   );
 }
@@ -116,6 +125,11 @@ function ProfileStackNavigator() {
         name={ROUTES.REPORT_DETAILS} 
         component={ReportDetailsScreen}
         options={{ title: 'Report' }}
+      />
+      <Stack.Screen
+        name={ROUTES.PROFILE_EDIT}
+        component={ProfileEditScreen}
+        options={{ title: 'Edit Profile' }}
       />
     </Stack.Navigator>
   );

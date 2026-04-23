@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, FONT_SIZES, SPACING, RADIUS } from '../constants/theme';
+import { COLORS, FONT_SIZES, SPACING, RADIUS, SHADOWS } from '../constants/theme';
 
 export default function RecentReportCard({ report, onPress }) {
   const formatTimeAgo = (timestamp) => {
@@ -19,6 +19,7 @@ export default function RecentReportCard({ report, onPress }) {
       case 'pending': return COLORS.warning;
       case 'approved': return COLORS.success;
       case 'rejected': return COLORS.error;
+      case 'sent_back': return COLORS.info;
       default: return COLORS.gray400;
     }
   };

@@ -83,7 +83,9 @@ const stateDefinitions: Record<EngineState, StateDefinition> = {
             engine.setNextState('SUBMIT')
         },
         onButtonPress: async () => {
+            console.log('[NormalEngine] CAPTURE button pressed: capturing frame')
             await captureImage()
+            console.log('[NormalEngine] CAPTURE done: transitioning to SUBMIT')
             await transitionToState('SUBMIT')
         },
     },
@@ -137,11 +139,14 @@ const handleButtonPress = async (): Promise<void> => {
 }
 
 const onButtonPress = (): void => {
+    const { currentState, gateState } = useEngineStore.getState()
+    console.log('[NormalEngine] button press', { currentState, gateState, isTransitioning })
     if (isTransitioning) return
 
     isTransitioning = true
     void handleButtonPress().finally(() => {
         isTransitioning = false
+        console.log('[NormalEngine] button handling completed')
     })
 }
 
